@@ -2,6 +2,7 @@ package com.classtinginc.image_picker.folders;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.classtinginc.image_picker.images.ImagePickerActivity;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.library.R;
 import com.tbruyelle.rxpermissions.RxPermissions;
@@ -38,8 +40,18 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     }
 
     @Override
+    protected void onDestroy() {
+        presenter.unsubscribe();
+        super.onDestroy();
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(this, "click " + adapter.getItem(position).getThumbPath(), Toast.LENGTH_SHORT).show();
+
+        Folder folder = adapter.getItem(position);
+
+        Intent intent = new Intent(this, ImagePickerActivity.class);
+        intent.putExtra("EXTRA_DATA", folder);
     }
 
     @TargetApi(16)
@@ -60,7 +72,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     }
 
     @Override
-    public void loadViews(ArrayList<Folder> folders) {
+    public void showFolders(ArrayList<Folder> folders) {
         adapter.setItems(folders);
         adapter.notifyDataSetChanged();
     }

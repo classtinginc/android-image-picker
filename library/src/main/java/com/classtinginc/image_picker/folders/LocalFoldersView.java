@@ -9,5 +9,5 @@ import java.util.ArrayList;
  */
 
 public interface LocalFoldersView {
-    void loadViews(ArrayList<Folder> folders);
+    void showFolders(ArrayList<Folder> folders);
 }

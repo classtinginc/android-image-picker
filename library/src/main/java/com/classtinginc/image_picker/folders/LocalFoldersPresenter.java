@@ -10,6 +10,13 @@ import com.classtinginc.image_picker.utils.Validation;
 
 import java.util.ArrayList;
 
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
+
 /**
  * Created by classting on 28/06/2019.
  */
@@ -18,12 +25,35 @@ class LocalFoldersPresenter {
 
     private LocalFoldersView view;
 
+    private CompositeSubscription subscriptions;
+
     LocalFoldersPresenter(LocalFoldersView view) {
         this.view = view;
+        this.subscriptions = new CompositeSubscription();
     }
 
-    void showFolders(Context context) {
-        view.loadViews(getFolders(context));
+    void unsubscribe() {
+        subscriptions.unsubscribe();
+    }
+
+    void showFolders(final Context context) {
+        subscriptions.add(Observable.create(new Observable.OnSubscribe<ArrayList<Folder>>() {
+            @Override
+            public void call(Subscriber<? super ArrayList<Folder>> subscriber) {
+                subscriber.onNext(getFolders(context));
+            }
+        }).subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(new Action1<ArrayList<Folder>>() {
+                @Override
+                public void call(ArrayList<Folder> folders) {
+                    view.showFolders(folders);
+                }
+            }, new Action1<Throwable>() {
+                @Override
+                public void call(Throwable throwable) {
+                }
+            }));
     }
 
     ArrayList<Folder> getFolders(Context context) {
