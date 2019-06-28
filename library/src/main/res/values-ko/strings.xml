@@ -1,0 +1,11 @@
+<resources>
+    <string name="alert.device_permission_denied">이 작업을 허용하지 않아 서비스 이용이 제한됩니다.\n설정 > 애플리케이션에서 권한을 변경해주세요.</string>
+    <string name="toast.write_post.attach_photo_limit">사진은 %d장 까지만 첨부 가능합니다</string>
+    <string name="title.upload_photo.select_photos">사진을 선택하세요</string>
+    <string name="btn.attach_photo">사진 업로드</string>
+    <string name="btn.attach_photo_pl">사진 %d장 업로드</string>
+    <string name="count.photo">사진 %d장</string>
+    <string name="count.photo_pl">사진 %d장</string>
+
+
+</resources>

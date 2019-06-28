@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.utils.ActivityUtils;
+import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -34,7 +35,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
-        ActivityUtils.setNavigation(getSupportActionBar(), "select Image");
+        ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
         limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
 
@@ -48,8 +49,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         select = findViewById(R.id.select);
         select.setOnClickListener(this);
-
-        presenter.init();
+        updateButtonState(0);
 
         Folder folder = (Folder) getIntent().getSerializableExtra("EXTRA_DATA");
         checkPermission(folder);
@@ -79,7 +79,11 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
                     if (granted) {
                         presenter.showImages(ImagePickerActivity.this, folder);
                     } else {
-                        Toast.makeText(ImagePickerActivity.this, "do not use image picker", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                ImagePickerActivity.this,
+                                TranslationUtils.gePermissionGuide(ImagePickerActivity.this),
+                                Toast.LENGTH_SHORT
+                        ).show();
                         finish();
                     }
                 }
@@ -103,14 +107,14 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void updateButtonState(int selectedImagesCount, int limitSize) {
+    public void updateButtonState(int selectedImagesCount) {
         select.setEnabled(selectedImagesCount > 0);
-        select.setText(selectedImagesCount > 0 ? selectedImagesCount + " selected" : limitSize + " can be selected");
+        select.setText(TranslationUtils.getButtonTitle(this, selectedImagesCount));
     }
 
     @Override
-    public void showCheckLimit() {
-        Toast.makeText(ImagePickerActivity.this, "check limit", Toast.LENGTH_SHORT).show();
+    public void showCheckLimit(int limitSize) {
+        Toast.makeText(ImagePickerActivity.this, TranslationUtils.getLimitGuide(this, limitSize), Toast.LENGTH_SHORT).show();
     }
 
     @Override

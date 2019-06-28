@@ -8,13 +8,13 @@ import android.support.v7.app.ActionBar;
 
 public class ActivityUtils {
 
-    public static void setNavigation(ActionBar actionBar, String title) {
+    public static void setNavigation(ActionBar actionBar, int title) {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setTitle(title);
     }
 
-    public static void setNavigation(ActionBar actionBar, String title, int icon) {
+    public static void setNavigation(ActionBar actionBar, int title, int icon) {
         setNavigation(actionBar, title);
         actionBar.setHomeAsUpIndicator(icon);
     }

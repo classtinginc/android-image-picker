@@ -11,8 +11,8 @@ import java.util.ArrayList;
 public interface ImagePickerView {
     void showImages(ArrayList<Image> images);
     void notifyDataSetChanged();
-    void updateButtonState(int selectedImagesCount, int limitSize);
+    void updateButtonState(int selectedImagesCount);
     void done(String images);
     void cancel();
-    void showCheckLimit();
+    void showCheckLimit(int limitSize);
 }

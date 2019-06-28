@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
 
 import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
@@ -54,6 +55,6 @@ public class ItemLocalFolder extends LinearLayout {
         String folderArray[] = folder.getPath().split("/");
         title.setText(folderArray[folderArray.length - 1]);
 
-        subTitle.setText(String.valueOf(folder.getSize()));
+        subTitle.setText(TranslationUtils.getImagesCount(getContext(), folder.getSize()));
     }
 }

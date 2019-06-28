@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.classtinginc.image_picker.images.ImagePickerActivity;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.utils.ActivityUtils;
+import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -35,7 +36,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_folders);
 
-        ActivityUtils.setNavigation(getSupportActionBar(), "select Image", R.drawable.ic_close);
+        ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos, R.drawable.ic_close);
 
         limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
 
@@ -85,7 +86,11 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
                     if (granted) {
                         presenter.showFolders(LocalFoldersActivity.this);
                     } else {
-                        Toast.makeText(LocalFoldersActivity.this, "do not use image picker", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                LocalFoldersActivity.this,
+                                TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
+                                Toast.LENGTH_SHORT
+                        ).show();
                         finish();
                     }
                 }

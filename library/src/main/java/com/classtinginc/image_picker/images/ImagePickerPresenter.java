@@ -42,10 +42,6 @@ class ImagePickerPresenter {
         subscriptions.unsubscribe();
     }
 
-    void init() {
-        view.updateButtonState(0, limitSize);
-    }
-
     void showImages(final Context context, final Folder folder) {
         subscriptions.add(Observable.create(new Observable.OnSubscribe<ArrayList<Image>>() {
             @Override
@@ -116,14 +112,14 @@ class ImagePickerPresenter {
             }
         } else {
             if (selectedImages.size() >= limitSize) {
-                view.showCheckLimit();
+                view.showCheckLimit(limitSize);
                 return;
             }
 
             selectedImages.add(image);
             image.setSelectedIndex(selectedImages.indexOf(image));
         }
-        view.updateButtonState(selectedImages.size(), limitSize);
+        view.updateButtonState(selectedImages.size());
         view.notifyDataSetChanged();
     }
 
