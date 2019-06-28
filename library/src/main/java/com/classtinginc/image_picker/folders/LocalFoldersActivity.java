@@ -2,7 +2,9 @@ package com.classtinginc.image_picker.folders;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -65,7 +67,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra("EXTRA_DATA", folder);
 
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     @TargetApi(16)
@@ -89,5 +91,15 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     public void showFolders(ArrayList<Folder> folders) {
         adapter.setItems(folders);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra("EXTRA_DATA")) {
+            setResult(Activity.RESULT_OK, data);
+            finish();
+        }
     }
 }

@@ -109,7 +109,15 @@ class ImagePickerPresenter {
             selectedImages.add(image);
             image.setSelectedIndex(selectedImages.indexOf(image));
         }
-
+        view.updateButtonTitle(selectedImages.size());
         view.notifyDataSetChanged();
+    }
+
+    void select() {
+        if (selectedImages.isEmpty()) {
+            view.cancel();
+        } else {
+            view.done(selectedImages.toString());
+        }
     }
 }

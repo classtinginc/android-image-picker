@@ -11,4 +11,7 @@ import java.util.ArrayList;
 public interface ImagePickerView {
     void showImages(ArrayList<Image> images);
     void notifyDataSetChanged();
+    void updateButtonTitle(int selectedImagesCount);
+    void done(String images);
+    void cancel();
 }

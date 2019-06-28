@@ -8,7 +8,7 @@
 
     <GridView
         android:id="@+id/grid"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fadingEdge="none"
@@ -20,5 +20,14 @@
         tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="8dp">
     </GridView>
+
+    <Button
+        android:id="@+id/select"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/selector_button"
+        android:text="select"
+        android:textColor="#ffffff"
+        android:gravity="center"/>
 
 </LinearLayout>
