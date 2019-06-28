@@ -27,6 +27,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     private Button select;
     private ImagePickerPresenter presenter;
     private ImagePickerAdapter adapter;
+    private int limitSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         ActivityUtils.setNavigation(getSupportActionBar(), "select Image");
 
+        limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
+
         presenter = new ImagePickerPresenter(this);
+        presenter.setLimitSize(limitSize);
         adapter = new ImagePickerAdapter(this);
         adapter.setListener(this);
 
@@ -44,6 +48,8 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         select = findViewById(R.id.select);
         select.setOnClickListener(this);
+
+        presenter.init();
 
         Folder folder = (Folder) getIntent().getSerializableExtra("EXTRA_DATA");
         checkPermission(folder);
@@ -97,8 +103,14 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void updateButtonTitle(int selectedImagesCount) {
-        select.setText(selectedImagesCount + " selected");
+    public void updateButtonState(int selectedImagesCount, int limitSize) {
+        select.setEnabled(selectedImagesCount > 0);
+        select.setText(selectedImagesCount > 0 ? selectedImagesCount + " selected" : limitSize + " can be selected");
+    }
+
+    @Override
+    public void showCheckLimit() {
+        Toast.makeText(ImagePickerActivity.this, "check limit", Toast.LENGTH_SHORT).show();
     }
 
     @Override

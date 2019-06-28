@@ -22,7 +22,9 @@ public class MainActivity extends AppCompatActivity {
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, LocalFoldersActivity.class), 1);
+                Intent intent = new Intent(MainActivity.this, LocalFoldersActivity.class);
+                intent.putExtra("LIMIT_SIZE", 3);
+                startActivityForResult(intent, 1);
             }
         });
     }

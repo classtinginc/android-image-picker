@@ -26,6 +26,7 @@ class ImagePickerPresenter {
     private ImagePickerView view;
     private CompositeSubscription subscriptions;
     private ArrayList<Image> selectedImages;
+    private int limitSize;
 
     ImagePickerPresenter(ImagePickerView view) {
         this.view = view;
@@ -33,8 +34,16 @@ class ImagePickerPresenter {
         selectedImages = new ArrayList<>();
     }
 
+    public void setLimitSize(int limitSize) {
+        this.limitSize = limitSize;
+    }
+
     void unsubscribe() {
         subscriptions.unsubscribe();
+    }
+
+    void init() {
+        view.updateButtonState(0, limitSize);
     }
 
     void showImages(final Context context, final Folder folder) {
@@ -106,10 +115,15 @@ class ImagePickerPresenter {
                 i.setSelectedIndex(selectedImages.indexOf(i));
             }
         } else {
+            if (selectedImages.size() >= limitSize) {
+                view.showCheckLimit();
+                return;
+            }
+
             selectedImages.add(image);
             image.setSelectedIndex(selectedImages.indexOf(image));
         }
-        view.updateButtonTitle(selectedImages.size());
+        view.updateButtonState(selectedImages.size(), limitSize);
         view.notifyDataSetChanged();
     }
 

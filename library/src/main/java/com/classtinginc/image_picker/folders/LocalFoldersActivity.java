@@ -25,8 +25,10 @@ import rx.functions.Action1;
 
 public class LocalFoldersActivity extends AppCompatActivity implements LocalFoldersView, AdapterView.OnItemClickListener {
 
-    LocalFoldersPresenter presenter;
-    LocalFoldersAdapter adapter;
+    private LocalFoldersPresenter presenter;
+    private LocalFoldersAdapter adapter;
+    private int limitSize;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,8 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         setContentView(R.layout.activity_local_folders);
 
         ActivityUtils.setNavigation(getSupportActionBar(), "select Image", R.drawable.ic_close);
+
+        limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
 
         presenter = new LocalFoldersPresenter(this);
         adapter = new LocalFoldersAdapter(this);
@@ -66,6 +70,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra("EXTRA_DATA", folder);
+        intent.putExtra("LIMIT_SIZE", limitSize);
 
         startActivityForResult(intent, 1);
     }
