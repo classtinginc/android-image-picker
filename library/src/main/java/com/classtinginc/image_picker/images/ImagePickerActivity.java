@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.classtinginc.image_picker.models.Folder;
@@ -19,6 +20,7 @@ import rx.functions.Action1;
 public class ImagePickerActivity extends AppCompatActivity implements ImagePickerView {
 
     private ImagePickerPresenter presenter;
+    private ImagePickerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         setContentView(R.layout.activity_image_picker);
 
         presenter = new ImagePickerPresenter(this);
+        adapter = new ImagePickerAdapter(this);
+
+        GridView grid = findViewById(R.id.grid);
+        grid.setAdapter(adapter);
 
         Folder folder = (Folder) getIntent().getSerializableExtra("EXTRA_DATA");
         checkPermission(folder);
@@ -57,5 +63,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     @Override
     public void showImages(ArrayList<Image> images) {
         Log.e("imagePicker", images.toString());
+        adapter.setItems(images);
+        adapter.notifyDataSetChanged();
     }
 }

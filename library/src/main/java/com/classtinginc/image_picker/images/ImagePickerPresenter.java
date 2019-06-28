@@ -65,7 +65,7 @@ public class ImagePickerPresenter {
                     new String[] { "%" + dirPath + "%" },
                     null);
 
-            if (imageCursor != null && imageCursor.moveToFirst()){
+            if (imageCursor != null && imageCursor.moveToFirst()) {
                 String thumbsID;
                 String thumbsImageID;
                 String thumbsAbsPath;
