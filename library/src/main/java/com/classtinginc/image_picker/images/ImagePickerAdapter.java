@@ -1,6 +1,7 @@
 package com.classtinginc.image_picker.images;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,18 +11,22 @@ import com.classtinginc.image_picker.models.Image;
 import java.util.ArrayList;
 
 
-public class ImagePickerAdapter extends BaseAdapter {
+class ImagePickerAdapter extends BaseAdapter {
 
     private Context context;
-
     private ArrayList<Image> images;
+    private ItemImageListener listener;
 
-    public ImagePickerAdapter(Context context) {
+    ImagePickerAdapter(Context context) {
         this.images = new ArrayList<>();
         this.context = context;
     }
 
-    public void setItems(ArrayList<Image> items) {
+    void setListener(ItemImageListener listener) {
+        this.listener = listener;
+    }
+
+    void setItems(ArrayList<Image> items) {
         this.images = items;
     }
 
@@ -42,13 +47,13 @@ public class ImagePickerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         ItemImage view = (ItemImage) convertView;
 
         if (convertView == null) {
             view = new ItemImage(context);
         }
 
+        view.setListener(listener);
         view.bind(getItem(position));
 
         return view;

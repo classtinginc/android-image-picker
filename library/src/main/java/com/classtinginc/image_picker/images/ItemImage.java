@@ -4,10 +4,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.classtinginc.image_picker.models.Image;
@@ -18,6 +21,9 @@ import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 public class ItemImage extends RelativeLayout {
 
     ImageView imageView;
+    TextView check;
+
+    private ItemImageListener listener;
 
     public ItemImage(Context context) {
         super(context);
@@ -39,13 +45,29 @@ public class ItemImage extends RelativeLayout {
         LinearLayout.inflate(getContext(), R.layout.item_image, this);
 
         imageView = findViewById(R.id.image_view);
+        check = findViewById(R.id.check);
     }
 
-    public void bind(Image image) {
+    public void setListener(ItemImageListener listener) {
+        this.listener = listener;
+    }
+
+    public void bind(final Image image) {
         Glide.with(getContext())
                 .load("file://" + image.getThumbPath())
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
                 .into(imageView);
+
+        check.setText(String.valueOf(image.getSelectedIndex() + 1));
+        check.setVisibility(image.getSelectedIndex() > -1 ? VISIBLE : GONE);
+        if (listener != null) {
+            imageView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onClickedGallery(image, ItemImage.this);
+                }
+            });
+        }
     }
 
     @Override

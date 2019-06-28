@@ -21,14 +21,16 @@ import rx.subscriptions.CompositeSubscription;
  * Created by classting on 28/06/2019.
  */
 
-public class ImagePickerPresenter {
+class ImagePickerPresenter {
 
     private ImagePickerView view;
     private CompositeSubscription subscriptions;
+    private ArrayList<Image> selectedImages;
 
     ImagePickerPresenter(ImagePickerView view) {
         this.view = view;
         subscriptions = new CompositeSubscription();
+        selectedImages = new ArrayList<>();
     }
 
     void unsubscribe() {
@@ -56,7 +58,7 @@ public class ImagePickerPresenter {
                 }));
     }
 
-    public ArrayList<Image> getImages(Context context, String dirPath) {
+    ArrayList<Image> getImages(Context context, String dirPath) {
         ArrayList<Image> images = new ArrayList<>();
 
         try {
@@ -93,5 +95,21 @@ public class ImagePickerPresenter {
             e.printStackTrace();
         }
         return images;
+    }
+
+    void selectImage(Image image) {
+        if (selectedImages.contains(image)) {
+            selectedImages.remove(image);
+            image.setSelectedIndex(-1);
+
+            for (Image i : selectedImages) {
+                i.setSelectedIndex(selectedImages.indexOf(i));
+            }
+        } else {
+            selectedImages.add(image);
+            image.setSelectedIndex(selectedImages.indexOf(image));
+        }
+
+        view.notifyDataSetChanged();
     }
 }

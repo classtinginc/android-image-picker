@@ -13,4 +13,21 @@
         android:background="#e0e0e0"
         android:scaleType="centerCrop" />
 
+    <TextView
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:minWidth="18dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:layout_margin="6dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:text="1"
+        android:textColor="#ffffff"
+        android:gravity="center"
+        android:background="@drawable/shape_round"
+        android:visibility="visible" />
+
 </RelativeLayout>

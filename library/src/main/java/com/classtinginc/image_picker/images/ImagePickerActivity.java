@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 import rx.functions.Action1;
 
-public class ImagePickerActivity extends AppCompatActivity implements ImagePickerView {
+public class ImagePickerActivity extends AppCompatActivity implements ImagePickerView, ItemImageListener {
 
     private ImagePickerPresenter presenter;
     private ImagePickerAdapter adapter;
@@ -33,6 +33,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         presenter = new ImagePickerPresenter(this);
         adapter = new ImagePickerAdapter(this);
+        adapter.setListener(this);
 
         GridView grid = findViewById(R.id.grid);
         grid.setAdapter(adapter);
@@ -74,8 +75,17 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @Override
     public void showImages(ArrayList<Image> images) {
-        Log.e("imagePicker", images.toString());
         adapter.setItems(images);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClickedGallery(Image image, ItemImage item) {
+        presenter.selectImage(image);
     }
 }
