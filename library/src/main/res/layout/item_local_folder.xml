@@ -9,8 +9,7 @@
     android:paddingRight="@dimen/default_padding"
     android:background="#ffffff">
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <ImageView
         android:id="@+id/image"
         android:layout_width="36dp"
         android:layout_height="36dp"
@@ -18,10 +17,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginRight="@dimen/default_margin"
         android:layout_marginEnd="@dimen/default_margin"
-        android:src="#e0e0e0"
-        app:riv_corner_radius="2dp"
-        app:riv_mutate_background="true"
-        app:riv_oval="false"/>
+        android:src="#e0e0e0"/>
 
     <LinearLayout
         android:layout_width="0dp"

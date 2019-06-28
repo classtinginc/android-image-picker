@@ -58,8 +58,9 @@ public class ItemImage extends RelativeLayout {
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
                 .into(imageView);
 
-        check.setText(String.valueOf(image.getSelectedIndex() + 1));
-        check.setVisibility(image.getSelectedIndex() > -1 ? VISIBLE : GONE);
+        check.setActivated(image.getSelectedIndex() > -1);
+        check.setText(image.getSelectedIndex() > -1 ? String.valueOf(image.getSelectedIndex() + 1) : "");
+
         if (listener != null) {
             imageView.setOnClickListener(new OnClickListener() {
                 @Override
