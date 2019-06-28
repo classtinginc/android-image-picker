@@ -9,14 +9,13 @@ import lombok.Data;
  */
 
 @Data
-public class Folder implements Serializable {
+public class Image implements Serializable {
 
-    private String path;
+    private String thumbId;
     private String thumbPath;
-    private int size;
 
-    public Folder(String path, String thumbPath) {
-        this.path = path;
+    public Image(String thumbId, String thumbPath) {
+        this.thumbId = thumbId;
         this.thumbPath = thumbPath;
     }
 }

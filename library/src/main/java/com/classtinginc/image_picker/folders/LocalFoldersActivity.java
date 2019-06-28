@@ -52,6 +52,8 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra("EXTRA_DATA", folder);
+
+        startActivity(intent);
     }
 
     @TargetApi(16)

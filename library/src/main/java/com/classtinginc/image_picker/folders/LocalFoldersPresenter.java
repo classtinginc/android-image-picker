@@ -24,7 +24,6 @@ import rx.subscriptions.CompositeSubscription;
 class LocalFoldersPresenter {
 
     private LocalFoldersView view;
-
     private CompositeSubscription subscriptions;
 
     LocalFoldersPresenter(LocalFoldersView view) {
