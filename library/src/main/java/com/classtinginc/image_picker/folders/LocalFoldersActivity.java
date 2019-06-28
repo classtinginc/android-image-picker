@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.classtinginc.image_picker.images.ImagePickerActivity;
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.library.R;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -29,6 +31,8 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_folders);
 
+        ActivityUtils.setNavigation(getSupportActionBar(), "select Image", R.drawable.ic_close);
+
         presenter = new LocalFoldersPresenter(this);
         adapter = new LocalFoldersAdapter(this);
 
@@ -43,6 +47,14 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     protected void onDestroy() {
         presenter.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

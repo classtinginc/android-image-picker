@@ -5,11 +5,13 @@ import android.annotation.TargetApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.Toast;
 
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.library.R;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -27,6 +29,8 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
+        ActivityUtils.setNavigation(getSupportActionBar(), "select Image");
+
         presenter = new ImagePickerPresenter(this);
         adapter = new ImagePickerAdapter(this);
 
@@ -41,6 +45,14 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     protected void onDestroy() {
         presenter.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @TargetApi(16)
