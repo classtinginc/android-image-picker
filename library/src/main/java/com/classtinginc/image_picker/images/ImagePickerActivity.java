@@ -28,7 +28,6 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     private Button select;
     private ImagePickerPresenter presenter;
     private ImagePickerAdapter adapter;
-    private int limitSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
-        limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
+        int limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
 
         presenter = new ImagePickerPresenter(this);
         presenter.setLimitSize(limitSize);
@@ -118,9 +117,9 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void done(String images) {
+    public void done(String json) {
         Intent intent = new Intent();
-        intent.putExtra("EXTRA_DATA", images);
+        intent.putExtra("EXTRA_DATA", json);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

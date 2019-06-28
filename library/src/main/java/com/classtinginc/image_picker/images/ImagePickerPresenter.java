@@ -7,6 +7,8 @@ import android.provider.MediaStore;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.utils.ImageUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 
@@ -127,7 +129,8 @@ class ImagePickerPresenter {
         if (selectedImages.isEmpty()) {
             view.cancel();
         } else {
-            view.done(selectedImages.toString());
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            view.done(gson.toJson(selectedImages));
         }
     }
 }

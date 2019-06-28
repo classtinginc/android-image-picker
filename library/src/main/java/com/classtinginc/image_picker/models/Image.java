@@ -1,5 +1,7 @@
 package com.classtinginc.image_picker.models;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 
 import lombok.Data;
@@ -13,7 +15,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"thumbId"})
 public class Image implements Serializable {
 
+    @Expose
     private String thumbId;
+
+    @Expose
     private String thumbPath;
     private int selectedIndex = -1;
 

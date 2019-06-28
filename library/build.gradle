@@ -37,4 +37,5 @@ dependencies {
 
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
+    compile 'com.google.code.gson:gson:2.8.1'
 }
