@@ -1,12 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.classtinginc.library">
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <application>
-        <activity android:name="com.classtinginc.image_picker.images.ImagePickerActivity" />
-        <activity android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"/>
-    </application>
-
-</manifest>
+<manifest package="com.classtinginc.library"/>

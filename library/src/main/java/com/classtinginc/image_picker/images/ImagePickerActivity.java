@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,8 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
         int limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);

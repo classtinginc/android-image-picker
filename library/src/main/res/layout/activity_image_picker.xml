@@ -6,6 +6,13 @@
     android:orientation="vertical"
     tools:context="com.classtinginc.image_picker.images.ImagePickerActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:minHeight="?android:attr/actionBarSize"/>
+
     <GridView
         android:id="@+id/grid"
         android:layout_width="match_parent"
