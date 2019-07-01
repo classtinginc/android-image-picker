@@ -4,15 +4,10 @@ import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 /**
  * Created by classting on 28/06/2019.
  */
 
-@Data
-@EqualsAndHashCode(of = {"thumbId"})
 public class Image implements Serializable {
 
     @Expose
@@ -25,5 +20,29 @@ public class Image implements Serializable {
     public Image(String thumbId, String thumbPath) {
         this.thumbId = thumbId;
         this.thumbPath = thumbPath;
+    }
+
+    public void setThumbId(String thumbId) {
+        this.thumbId = thumbId;
+    }
+
+    public String getThumbId() {
+        return this.thumbId;
+    }
+
+    public void setThumbPath(String thumbPath) {
+        this.thumbPath = thumbPath;
+    }
+
+    public String getThumbPath() {
+        return this.thumbPath;
+    }
+
+    public void setSelectedIndex(int selectedIndex) {
+        this.selectedIndex = selectedIndex;
+    }
+
+    public int getSelectedIndex() {
+        return this.selectedIndex;
     }
 }
