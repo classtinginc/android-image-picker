@@ -8,7 +8,6 @@ public class Extra {
 
     public final static String MAX_SIZE = "MAX_SIZE";
     public final static String ALLOW_MULTIPLE = "ALLOW_MULTIPLE";
-
     public final static String DATA = "DATA";
 
 }

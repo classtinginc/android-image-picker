@@ -63,7 +63,7 @@ class LocalFoldersPresenter {
                     ImageUtils.proj,
                     null,
                     null,
-                    null);
+                    MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
 
             if (imageCursor != null && imageCursor.moveToFirst()) {
                 String thumbsID;

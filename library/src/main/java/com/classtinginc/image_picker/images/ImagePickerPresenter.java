@@ -77,7 +77,7 @@ class ImagePickerPresenter {
             Cursor imageCursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ImageUtils.proj,
                     MediaStore.Images.Media.DATA + " like ? ",
                     new String[] { "%" + dirPath + "%" },
-                    null);
+                    MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
 
             if (imageCursor != null && imageCursor.moveToFirst()) {
                 String thumbsID;

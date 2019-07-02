@@ -28,6 +28,8 @@ import rx.functions.Action1;
 
 public class LocalFoldersActivity extends AppCompatActivity implements LocalFoldersView, AdapterView.OnItemClickListener {
 
+    private final int REQUEST_CODE = 1;
+
     private LocalFoldersPresenter presenter;
     private LocalFoldersAdapter adapter;
 
@@ -73,7 +75,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         intent.putExtra(Extra.DATA, folder);
         intent.putExtras(getIntent().getExtras());
 
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
     @TargetApi(16)
