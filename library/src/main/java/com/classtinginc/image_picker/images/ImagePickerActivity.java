@@ -33,6 +33,8 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
@@ -109,7 +111,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void onClickedGallery(Image image, ItemImage item) {
+    public void onClickedGallery(Image image) {
         presenter.selectImage(image);
     }
 

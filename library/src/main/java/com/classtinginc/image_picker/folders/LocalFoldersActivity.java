@@ -35,6 +35,8 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_folders);
 

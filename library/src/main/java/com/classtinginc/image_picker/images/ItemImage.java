@@ -66,7 +66,7 @@ public class ItemImage extends RelativeLayout {
             imageView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listener.onClickedGallery(image, ItemImage.this);
+                    listener.onClickedGallery(image);
                 }
             });
         }

@@ -6,4 +6,6 @@
     <color name="grey_300">#e0e0e0</color>
     <color name="black_87">#de000000</color>
     <color name="black_54">#8a000000</color>
+    <color name="green_500">#00c896</color>
+    <color name="green_900">#0b8d6c</color>
 </resources>
