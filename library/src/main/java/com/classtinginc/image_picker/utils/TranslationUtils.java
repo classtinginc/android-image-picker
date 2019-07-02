@@ -26,8 +26,8 @@ public class TranslationUtils {
         return context.getString(R.string.count_photo_pl, imagesCount);
     }
 
-    public static String getLimitGuide(Context context, int limitSize) {
-        return context.getString(R.string.toast_write_post_attach_photo_limit, limitSize);
+    public static String getMaxSizeGuide(Context context, int maxSize) {
+        return context.getString(R.string.toast_write_post_attach_photo_limit, maxSize);
     }
 
     public static String gePermissionGuide(Context context) {

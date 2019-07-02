@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.utils.ActivityUtils;
@@ -39,10 +40,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         setSupportActionBar(toolbar);
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
-        int limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
+        int maxSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
 
         presenter = new ImagePickerPresenter(this);
-        presenter.setLimitSize(limitSize);
+        presenter.setMaxSize(maxSize);
         adapter = new ImagePickerAdapter(this);
         adapter.setListener(this);
 
@@ -53,7 +54,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         select.setOnClickListener(this);
         updateButtonState(0);
 
-        Folder folder = (Folder) getIntent().getSerializableExtra("EXTRA_DATA");
+        Folder folder = (Folder) getIntent().getSerializableExtra(Extra.DATA);
         checkPermission(folder);
     }
 
@@ -115,14 +116,14 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void showCheckLimit(int limitSize) {
-        Toast.makeText(ImagePickerActivity.this, TranslationUtils.getLimitGuide(this, limitSize), Toast.LENGTH_SHORT).show();
+    public void showCheckMaxSize(int maxSize) {
+        Toast.makeText(ImagePickerActivity.this, TranslationUtils.getMaxSizeGuide(this, maxSize), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void done(String json) {
         Intent intent = new Intent();
-        intent.putExtra("EXTRA_DATA", json);
+        intent.putExtra(Extra.DATA, json);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

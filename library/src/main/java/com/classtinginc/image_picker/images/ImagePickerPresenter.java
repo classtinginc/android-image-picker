@@ -28,7 +28,7 @@ class ImagePickerPresenter {
     private ImagePickerView view;
     private CompositeSubscription subscriptions;
     private ArrayList<Image> selectedImages;
-    private int limitSize;
+    private int maxSize;
 
     ImagePickerPresenter(ImagePickerView view) {
         this.view = view;
@@ -36,8 +36,8 @@ class ImagePickerPresenter {
         selectedImages = new ArrayList<>();
     }
 
-    public void setLimitSize(int limitSize) {
-        this.limitSize = limitSize;
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
     }
 
     void unsubscribe() {
@@ -113,8 +113,8 @@ class ImagePickerPresenter {
                 i.setSelectedIndex(selectedImages.indexOf(i));
             }
         } else {
-            if (selectedImages.size() >= limitSize) {
-                view.showCheckLimit(limitSize);
+            if (selectedImages.size() >= maxSize) {
+                view.showCheckMaxSize(maxSize);
                 return;
             }
 

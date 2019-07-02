@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.images.ImagePickerActivity;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.utils.ActivityUtils;
@@ -41,7 +42,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         setSupportActionBar(toolbar);
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos, R.drawable.ic_close);
 
-        limitSize = getIntent().getIntExtra("LIMIT_SIZE", 0);
+        limitSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
 
         presenter = new LocalFoldersPresenter(this);
         adapter = new LocalFoldersAdapter(this);
@@ -73,8 +74,8 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         Folder folder = adapter.getItem(position);
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
-        intent.putExtra("EXTRA_DATA", folder);
-        intent.putExtra("LIMIT_SIZE", limitSize);
+        intent.putExtra(Extra.DATA, folder);
+        intent.putExtra(Extra.MAX_SIZE, limitSize);
 
         startActivityForResult(intent, 1);
     }
@@ -110,7 +111,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra("EXTRA_DATA")) {
+        if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
             setResult(Activity.RESULT_OK, data);
             finish();
         }

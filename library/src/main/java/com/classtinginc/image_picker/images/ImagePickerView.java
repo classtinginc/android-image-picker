@@ -14,5 +14,5 @@ public interface ImagePickerView {
     void updateButtonState(int selectedImagesCount);
     void done(String images);
     void cancel();
-    void showCheckLimit(int limitSize);
+    void showCheckMaxSize(int maxSize);
 }
