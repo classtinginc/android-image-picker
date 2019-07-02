@@ -19,14 +19,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
-        <activity
-            android:name="com.classtinginc.image_picker.images.ImagePickerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
     </application>
 
 </manifest>

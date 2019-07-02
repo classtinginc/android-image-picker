@@ -7,24 +7,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
-import com.classtinginc.image_picker.folders.LocalFoldersActivity;
+import com.classtinginc.image_picker.consts.Extra;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final int REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button open = findViewById(R.id.open_image_picker);
-        open.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.multiple).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, LocalFoldersActivity.class);
-                intent.putExtra("LIMIT_SIZE", 3);
-                startActivityForResult(intent, 1);
+                ImagePicker
+                    .with(MainActivity.this)
+                    .maxSize(3)
+                    .allowMultiple(true)
+                    .startActivityForResult(REQUEST_CODE);
+            }
+        });
+
+        findViewById(R.id.single).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImagePicker
+                    .with(MainActivity.this)
+                    .allowMultiple(false)
+                    .startActivityForResult(REQUEST_CODE);
             }
         });
     }
@@ -33,8 +45,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra("EXTRA_DATA")) {
-            Log.e("imagePicker", data.getStringExtra("EXTRA_DATA"));
+        if (resultCode == Activity.RESULT_CANCELED) {
+            Log.e("imagePickerExample", "canceled");
+        } else if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
+            Log.e("imagePicker", data.getStringExtra(Extra.DATA));
         }
     }
 }
