@@ -16,10 +16,12 @@ class ImagePickerAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<Image> images;
     private ItemImageListener listener;
+    private boolean visibleCheck;
 
-    ImagePickerAdapter(Context context) {
+    ImagePickerAdapter(Context context, boolean visibleCheck) {
         this.images = new ArrayList<>();
         this.context = context;
+        this.visibleCheck = visibleCheck;
     }
 
     void setListener(ItemImageListener listener) {
@@ -54,7 +56,7 @@ class ImagePickerAdapter extends BaseAdapter {
         }
 
         view.setListener(listener);
-        view.bind(getItem(position));
+        view.bind(getItem(position), visibleCheck);
 
         return view;
     }

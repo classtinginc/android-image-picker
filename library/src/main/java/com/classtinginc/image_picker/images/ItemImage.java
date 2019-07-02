@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,13 +51,14 @@ public class ItemImage extends RelativeLayout {
         this.listener = listener;
     }
 
-    public void bind(final Image image) {
+    public void bind(final Image image, boolean visibleCheck) {
         Glide.with(getContext())
                 .load("file://" + image.getThumbPath())
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
                 .placeholder(R.color.grey_300)
                 .into(imageView);
 
+        check.setVisibility(visibleCheck ? VISIBLE : GONE);
         check.setActivated(image.getSelectedIndex() > -1);
         check.setText(image.getSelectedIndex() > -1 ? String.valueOf(image.getSelectedIndex() + 1) : "");
 

@@ -49,7 +49,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         presenter.setMaxSize(maxSize);
         presenter.setAllowMultiple(allowMultiple);
 
-        adapter = new ImagePickerAdapter(this);
+        adapter = new ImagePickerAdapter(this, allowMultiple);
         adapter.setListener(this);
 
         GridView grid = findViewById(R.id.grid);
