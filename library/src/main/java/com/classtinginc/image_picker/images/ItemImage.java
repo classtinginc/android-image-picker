@@ -56,6 +56,7 @@ public class ItemImage extends RelativeLayout {
         Glide.with(getContext())
                 .load("file://" + image.getThumbPath())
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                .placeholder(R.color.grey_300)
                 .into(imageView);
 
         check.setActivated(image.getSelectedIndex() > -1);

@@ -50,6 +50,7 @@ public class ItemLocalFolder extends LinearLayout {
         Glide.with(getContext())
                 .load("file://" + folder.getThumbPath())
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                .placeholder(R.color.grey_300)
                 .into(image);
 
         String folderArray[] = folder.getPath().split("/");

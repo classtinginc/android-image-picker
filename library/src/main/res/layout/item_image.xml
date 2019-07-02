@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:background="#e0e0e0"
+        android:src="@color/grey_300"
         android:scaleType="centerCrop" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:text="0"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:gravity="center"
         android:textAlignment="center"
         android:background="@drawable/selector_number" />

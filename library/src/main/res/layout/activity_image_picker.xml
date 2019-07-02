@@ -3,15 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.classtinginc.image_picker.images.ImagePickerActivity">
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:minHeight="?android:attr/actionBarSize"/>
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="@color/white"/>
 
     <GridView
         android:id="@+id/grid"
@@ -34,7 +32,7 @@
         android:layout_height="48dp"
         android:background="@drawable/selector_button"
         android:text="select"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:gravity="center"/>
 
 </LinearLayout>
