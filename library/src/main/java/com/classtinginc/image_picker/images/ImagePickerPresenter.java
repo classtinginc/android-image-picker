@@ -29,6 +29,7 @@ class ImagePickerPresenter {
     private CompositeSubscription subscriptions;
     private ArrayList<Image> selectedImages;
     private int maxSize;
+    private boolean allowMultiple;
 
     ImagePickerPresenter(ImagePickerView view) {
         this.view = view;
@@ -36,8 +37,12 @@ class ImagePickerPresenter {
         selectedImages = new ArrayList<>();
     }
 
-    public void setMaxSize(int maxSize) {
+    void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
+    }
+
+    void setAllowMultiple(boolean allowMultiple) {
+        this.allowMultiple = allowMultiple;
     }
 
     void unsubscribe() {
@@ -121,8 +126,14 @@ class ImagePickerPresenter {
             selectedImages.add(image);
             image.setSelectedIndex(selectedImages.indexOf(image));
         }
-        view.updateButtonState(selectedImages.size());
-        view.notifyDataSetChanged();
+
+        if (allowMultiple) {
+            view.updateButtonState(selectedImages.size());
+            view.notifyDataSetChanged();
+        } else {
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            view.done(gson.toJson(selectedImages));
+        }
     }
 
     void select() {

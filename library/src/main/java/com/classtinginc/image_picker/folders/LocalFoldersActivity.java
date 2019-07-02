@@ -30,8 +30,6 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
     private LocalFoldersPresenter presenter;
     private LocalFoldersAdapter adapter;
-    private int limitSize;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +39,6 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos, R.drawable.ic_close);
-
-        limitSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
 
         presenter = new LocalFoldersPresenter(this);
         adapter = new LocalFoldersAdapter(this);
@@ -75,7 +71,7 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra(Extra.DATA, folder);
-        intent.putExtra(Extra.MAX_SIZE, limitSize);
+        intent.putExtras(getIntent().getExtras());
 
         startActivityForResult(intent, 1);
     }
