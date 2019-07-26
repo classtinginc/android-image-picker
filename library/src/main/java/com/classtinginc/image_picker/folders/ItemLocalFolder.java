@@ -9,9 +9,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.utils.ImageUtils;
 import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
+
+import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 
 
 public class ItemLocalFolder extends LinearLayout {
@@ -47,7 +51,8 @@ public class ItemLocalFolder extends LinearLayout {
     public void bind(Folder folder) {
         Glide.with(getContext())
                 .load("file://" + folder.getThumbPath())
-                .placeholder(R.color.grey_300)
+                .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                .apply(ImageUtils.getDefaultOptions())
                 .into(image);
 
         String folderArray[] = folder.getPath().split("/");

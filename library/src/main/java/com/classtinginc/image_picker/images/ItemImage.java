@@ -11,8 +11,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.utils.ImageUtils;
 import com.classtinginc.library.R;
+
+import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 
 public class ItemImage extends RelativeLayout {
 
@@ -51,7 +55,8 @@ public class ItemImage extends RelativeLayout {
     public void bind(final Image image, boolean visibleCheck) {
         Glide.with(getContext())
                 .load("file://" + image.getThumbPath())
-                .placeholder(R.color.grey_300)
+                .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
+                .apply(ImageUtils.getDefaultOptions())
                 .into(imageView);
 
         check.setVisibility(visibleCheck ? VISIBLE : GONE);
