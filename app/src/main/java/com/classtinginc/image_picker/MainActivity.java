@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
                 ImagePicker
                     .with(MainActivity.this)
                     .maxSize(3)
+                    .availableSize(3)
                     .allowMultiple(true)
                     .startActivityForResult(REQUEST_CODE);
             }

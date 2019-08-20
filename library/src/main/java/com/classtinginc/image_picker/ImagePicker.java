@@ -15,6 +15,7 @@ public class ImagePicker {
     private Activity activity;
     private int style;
     private int maxSize;
+    private int availableSize;
     private boolean allowMultiple;
 
     public ImagePicker(Activity activity) {
@@ -27,6 +28,11 @@ public class ImagePicker {
 
     public ImagePicker maxSize(int maxSize) {
         this.maxSize = maxSize;
+        return this;
+    }
+
+    public ImagePicker availableSize(int availableSize) {
+        this.availableSize = availableSize;
         return this;
     }
 
@@ -47,6 +53,7 @@ public class ImagePicker {
         Intent intent = new Intent(activity, LocalFoldersActivity.class);
         intent.putExtra(Extra.STYLE, style);
         intent.putExtra(Extra.MAX_SIZE, maxSize);
+        intent.putExtra(Extra.AVAILABLE_SIZE, availableSize);
         intent.putExtra(Extra.ALLOW_MULTIPLE, allowMultiple);
         activity.startActivityForResult(intent, requestCode);
     }

@@ -43,10 +43,12 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
         int maxSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
+        int availableSize = getIntent().getIntExtra(Extra.AVAILABLE_SIZE, 0);
         boolean allowMultiple = getIntent().getBooleanExtra(Extra.ALLOW_MULTIPLE, false);
 
         presenter = new ImagePickerPresenter(this);
         presenter.setMaxSize(maxSize);
+        presenter.setAvailableSize(availableSize);
         presenter.setAllowMultiple(allowMultiple);
 
         adapter = new ImagePickerAdapter(this, allowMultiple);
