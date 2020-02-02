@@ -14,8 +14,8 @@ public class ImagePicker {
 
     private Activity activity;
     private int style;
-    private int maxSize;
-    private int availableSize;
+    private int maxSize = 1;
+    private int availableSize = 1;
     private boolean allowMultiple;
 
     public ImagePicker(Activity activity) {
@@ -39,7 +39,8 @@ public class ImagePicker {
     public ImagePicker allowMultiple(boolean allowMultiple) {
         this.allowMultiple = allowMultiple;
         if (!allowMultiple) {
-            this.maxSize = 1;
+            maxSize(1);
+            availableSize(1);
         }
         return this;
     }
