@@ -7,11 +7,15 @@
 
         <activity
             android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="Folder"
+            android:icon="@drawable/shape_button_pressed" />
 
         <activity
             android:name="com.classtinginc.image_picker.images.ImagePickerActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="Picker"
+            android:icon="@drawable/shape_button_pressed" />
 
     </application>
 </manifest>
