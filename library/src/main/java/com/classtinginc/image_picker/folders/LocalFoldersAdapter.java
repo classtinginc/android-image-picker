@@ -16,6 +16,7 @@ class LocalFoldersAdapter extends BaseAdapter {
     private ArrayList<Folder> items;
 
     LocalFoldersAdapter(Context context) {
+        ArrayList<Folder> list = new ArrayList<>();
         this.items = new ArrayList<>();
         this.context = context;
     }
