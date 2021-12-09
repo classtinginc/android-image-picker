@@ -3,19 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.classtinginc.library">
 
-    <application>
+    <application
+      android:label="클팅갤러리"
+      android:icon="@mipmap/ic_launcher"
+    >
 
         <activity
             android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="Folder"
-            android:icon="@drawable/shape_button_pressed" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="com.classtinginc.image_picker.images.ImagePickerActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="Picker"
-            android:icon="@drawable/shape_button_pressed" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
     </application>
 </manifest>
