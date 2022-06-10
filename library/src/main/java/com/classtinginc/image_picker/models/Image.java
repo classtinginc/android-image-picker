@@ -1,7 +1,11 @@
 package com.classtinginc.image_picker.models;
 
+import android.net.Uri;
+import android.webkit.MimeTypeMap;
+
 import com.google.gson.annotations.Expose;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -15,11 +19,13 @@ public class Image implements Serializable {
 
     @Expose
     private String thumbPath;
+    private String thumbsImageID;
     private int selectedIndex = -1;
 
-    public Image(String thumbId, String thumbPath) {
+    public Image(String thumbId, String thumbPath, String thumbsImageID) {
         this.thumbId = thumbId;
         this.thumbPath = thumbPath;
+        this.thumbsImageID = thumbsImageID;
     }
 
     public void setThumbId(String thumbId) {
@@ -38,11 +44,21 @@ public class Image implements Serializable {
         return this.thumbPath;
     }
 
+    public String getImageName() {
+        return this.thumbsImageID.replaceFirst("[.][^.]+$", "");
+    }
+
     public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
     }
 
     public int getSelectedIndex() {
         return this.selectedIndex;
+    }
+
+    public String getImageExtension() {
+        Uri file = Uri.fromFile(new File(this.thumbPath));
+        String fileExt = MimeTypeMap.getFileExtensionFromUrl(file.toString());
+        return fileExt;
     }
 }

@@ -114,7 +114,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @Override
     public void onClickedGallery(Image image) {
-        presenter.selectImage(image);
+        presenter.selectImage(this, image);
     }
 
     @Override
@@ -143,6 +143,6 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @Override
     public void onClick(View v) {
-        presenter.select();
+        presenter.select(this);
     }
 }

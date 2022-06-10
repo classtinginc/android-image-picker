@@ -3,6 +3,7 @@ package com.classtinginc.image_picker.images;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
@@ -11,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.io.IOException;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -100,7 +102,7 @@ class ImagePickerPresenter {
 
                     String dirMatcher = "[^\\.]*" + dirPath.replaceAll("/", "\\\\/") + "[^/]*\\.[^\\.]*$";
                     if (thumbsAbsPath.matches(dirMatcher) && thumbsImageID != null) {
-                        images.add(0, new Image(thumbsID, thumbsAbsPath));
+                        images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
                     }
                 } while (imageCursor.moveToNext());
             }
@@ -114,7 +116,7 @@ class ImagePickerPresenter {
         return images;
     }
 
-    void selectImage(Image image) {
+    void selectImage(Context context, Image image) {
         if (selectedImages.contains(image)) {
             selectedImages.remove(image);
             image.setSelectedIndex(-1);
@@ -136,15 +138,29 @@ class ImagePickerPresenter {
             view.updateButtonState(selectedImages.size());
             view.notifyDataSetChanged();
         } else {
+            try {
+                ImageConverter imageConverter = new ImageConverter(context);
+                imageConverter.convertImageFormat(selectedImages);
+            } catch (IOException ex) {
+                Log.i("Classting:::", String.valueOf(ex));
+            }
+
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             view.done(gson.toJson(selectedImages));
         }
     }
 
-    void select() {
+    void select(Context context) {
         if (selectedImages.isEmpty()) {
             view.cancel();
         } else {
+            try {
+                ImageConverter imageConverter = new ImageConverter(context);
+                imageConverter.convertImageFormat(selectedImages);
+            } catch (IOException ex) {
+                Log.i("Classting:::", String.valueOf(ex));
+            }
+
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             view.done(gson.toJson(selectedImages));
         }
