@@ -5,6 +5,7 @@ import com.classtinginc.image_picker.models.Image;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +41,16 @@ public class ImageConverter {
         FileOutputStream outputStream = new FileOutputStream(outputImagePath);
 
         Bitmap bitmapFactory = BitmapFactory.decodeFile(inputImagePath);
+        ExifInterface originalExif = new ExifInterface(inputImagePath);
+        String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
 
         boolean result = bitmapFactory.compress(format,100, outputStream);
+
+        if (shouldSetOrientation(originalOrientation)) {
+            ExifInterface exif = new ExifInterface(outputImagePath);
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, originalOrientation);
+            exif.saveAttributes();
+        }
 
         outputStream.close();
         inputStream.close();
@@ -51,6 +60,11 @@ public class ImageConverter {
 
     public boolean checkIsTargetExtension(String fileExt) {
         return this.targetExtensions.contains(fileExt);
+    }
+
+    private boolean shouldSetOrientation(String orientation) {
+        return !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_NORMAL))
+                && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
     }
 
     public void convertImageFormat(ArrayList<Image> selectedImages) throws IOException {
