@@ -83,8 +83,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @TargetApi(16)
     private void checkPermission(final Folder folder) {
+        String permission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ? Manifest.permission.READ_EXTERNAL_STORAGE : Manifest.permission.READ_MEDIA_IMAGES;
+
         RxPermissions.getInstance(this)
-            .request(Manifest.permission.READ_EXTERNAL_STORAGE)
+            .request(permission)
             .subscribe(new Action1<Boolean>() {
                 @Override
                 public void call(Boolean granted) {
