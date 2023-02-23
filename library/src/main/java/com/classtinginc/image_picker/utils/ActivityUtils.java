@@ -1,6 +1,6 @@
 package com.classtinginc.image_picker.utils;
 
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 
 /**
  * Created by classting on 28/06/2019.

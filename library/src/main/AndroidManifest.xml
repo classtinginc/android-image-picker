@@ -8,12 +8,12 @@
         <activity
             android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false" />
+            android:exported="true" />
 
         <activity
             android:name="com.classtinginc.image_picker.images.ImagePickerActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false" />
+            android:exported="true" />
 
     </application>
 </manifest>
