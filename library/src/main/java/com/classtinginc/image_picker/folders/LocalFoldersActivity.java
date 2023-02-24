@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Intent;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
@@ -82,8 +84,11 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
     @TargetApi(16)
     private void checkPermission() {
+        String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+                Manifest.permission.READ_MEDIA_IMAGES: Manifest.permission.READ_EXTERNAL_STORAGE;
+
         RxPermissions.getInstance(this)
-            .request(Manifest.permission.READ_EXTERNAL_STORAGE)
+            .request(permission)
             .subscribe(new Action1<Boolean>() {
                 @Override
                 public void call(Boolean granted) {
