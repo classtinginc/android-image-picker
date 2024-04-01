@@ -1,5 +1,8 @@
 package com.classtinginc.image_picker.folders;
 
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
+
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -84,26 +87,47 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
     @TargetApi(16)
     private void checkPermission() {
-        String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                Manifest.permission.READ_MEDIA_IMAGES: Manifest.permission.READ_EXTERNAL_STORAGE;
-
-        RxPermissions.getInstance(this)
-            .request(permission)
-            .subscribe(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean granted) {
-                    if (granted) {
-                        presenter.showFolders(LocalFoldersActivity.this);
-                    } else {
-                        Toast.makeText(
-                                LocalFoldersActivity.this,
-                                TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        finish();
+        // Permission request logic
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            RxPermissions.getInstance(this)
+                .request(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean granted) {
+                        if (granted) {
+                            presenter.showFolders(LocalFoldersActivity.this);
+                        } else {
+                            Toast.makeText(
+                                    LocalFoldersActivity.this,
+                                    TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            finish();
+                        }
                     }
-                }
-            });
+                });
+        } else {
+            String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+                READ_MEDIA_IMAGES: Manifest.permission.READ_EXTERNAL_STORAGE;
+
+            RxPermissions.getInstance(this)
+                .request(permission)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean granted) {
+                        if (granted) {
+                            presenter.showFolders(LocalFoldersActivity.this);
+                        } else {
+                            Toast.makeText(
+                                    LocalFoldersActivity.this,
+                                    TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            finish();
+                        }
+                    }
+                });
+        }
     }
 
     @Override
