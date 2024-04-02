@@ -2,6 +2,8 @@ package com.classtinginc.image_picker.folders;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import com.classtinginc.image_picker.models.Folder;
@@ -57,9 +59,12 @@ class LocalFoldersPresenter {
 
     ArrayList<Folder> getFolders(Context context) {
         ArrayList<Folder> folders = new ArrayList<>();
+        Uri contentsUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
         try {
-            Cursor imageCursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            Cursor imageCursor = context.getContentResolver().query(
+                    contentsUri,
                     ImageUtils.proj,
                     null,
                     null,

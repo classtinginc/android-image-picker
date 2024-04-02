@@ -1,18 +1,23 @@
 package com.classtinginc.image_picker.folders;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,11 +30,8 @@ import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
-import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.ArrayList;
-
-import rx.functions.Action1;
 
 public class LocalFoldersActivity extends AppCompatActivity implements LocalFoldersView, AdapterView.OnItemClickListener {
 
@@ -85,48 +87,13 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         startActivityForResult(intent, REQUEST_CODE);
     }
 
-    @TargetApi(16)
     private void checkPermission() {
-        // Permission request logic
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            RxPermissions.getInstance(this)
-                .request(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED)
-                .subscribe(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean granted) {
-                        if (granted) {
-                            presenter.showFolders(LocalFoldersActivity.this);
-                        } else {
-                            Toast.makeText(
-                                    LocalFoldersActivity.this,
-                                    TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            finish();
-                        }
-                    }
-                });
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED}, REQUEST_CODE);
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, REQUEST_CODE);
         } else {
-            String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                READ_MEDIA_IMAGES: Manifest.permission.READ_EXTERNAL_STORAGE;
-
-            RxPermissions.getInstance(this)
-                .request(permission)
-                .subscribe(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean granted) {
-                        if (granted) {
-                            presenter.showFolders(LocalFoldersActivity.this);
-                        } else {
-                            Toast.makeText(
-                                    LocalFoldersActivity.this,
-                                    TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            finish();
-                        }
-                    }
-                });
+            ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, REQUEST_CODE);
         }
     }
 
@@ -143,6 +110,31 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
             setResult(Activity.RESULT_OK, data);
             finish();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE) {
+            boolean granted = false;
+            for (int i=0; i< grantResults.length; i++) {
+                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    granted = true;
+                }
+            }
+
+            if(granted) {
+                presenter.showFolders(LocalFoldersActivity.this);
+            } else {
+                Toast.makeText(
+                        LocalFoldersActivity.this,
+                        TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                finish();
+            }
         }
     }
 }
