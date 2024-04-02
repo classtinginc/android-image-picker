@@ -1,18 +1,23 @@
 package com.classtinginc.image_picker.images;
 
-import android.Manifest;
-import android.annotation.TargetApi;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.models.Folder;
@@ -20,14 +25,11 @@ import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
-import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.ArrayList;
 
-import rx.functions.Action1;
-
 public class ImagePickerActivity extends AppCompatActivity implements ImagePickerView, ItemImageListener, View.OnClickListener {
-
+    private final int REQUEST_CODE = 1;
     private Button select;
     private ImagePickerPresenter presenter;
     private ImagePickerAdapter adapter;
@@ -64,6 +66,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         updateButtonState(0);
 
         Folder folder = (Folder) getIntent().getSerializableExtra(Extra.DATA);
+
         checkPermission(folder);
     }
 
@@ -81,27 +84,28 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         return super.onOptionsItemSelected(item);
     }
 
-    @TargetApi(16)
-    private void checkPermission(final Folder folder) {
-        String permission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ? Manifest.permission.READ_EXTERNAL_STORAGE : Manifest.permission.READ_MEDIA_IMAGES;
+    private void checkPermission(Folder folder) {
+        if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) == PERMISSION_GRANTED
+        ) {
+            presenter.showImages(ImagePickerActivity.this, folder);
+        } else if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                        ContextCompat.checkSelfPermission(this, READ_MEDIA_VISUAL_USER_SELECTED) == PERMISSION_GRANTED
+        ) {
+            presenter.showImages(ImagePickerActivity.this, folder);
+        } else if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+            presenter.showImages(ImagePickerActivity.this, folder);
+        } else {
+            Toast.makeText(
+                    ImagePickerActivity.this,
+                    TranslationUtils.gePermissionGuide(ImagePickerActivity.this),
+                    Toast.LENGTH_SHORT
+            ).show();
 
-        RxPermissions.getInstance(this)
-            .request(permission)
-            .subscribe(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean granted) {
-                    if (granted) {
-                        presenter.showImages(ImagePickerActivity.this, folder);
-                    } else {
-                        Toast.makeText(
-                                ImagePickerActivity.this,
-                                TranslationUtils.gePermissionGuide(ImagePickerActivity.this),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        finish();
-                    }
-                }
-            });
+            finish();
+        }
     }
 
     @Override

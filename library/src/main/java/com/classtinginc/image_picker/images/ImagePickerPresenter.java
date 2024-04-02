@@ -2,6 +2,8 @@ package com.classtinginc.image_picker.images;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -79,9 +81,13 @@ class ImagePickerPresenter {
 
     ArrayList<Image> getImages(Context context, String dirPath) {
         ArrayList<Image> images = new ArrayList<>();
+        Uri contentsUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
         try {
-            Cursor imageCursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ImageUtils.proj,
+            Cursor imageCursor = context.getContentResolver().query(
+                    contentsUri,
+                    ImageUtils.proj,
                     MediaStore.Images.Media.DATA + " like ? ",
                     new String[] { "%" + dirPath + "%" },
                     MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
