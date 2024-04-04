@@ -108,7 +108,13 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
+            Bundle extras = data.getExtras();
+            for (String key : extras.keySet()) {
+                Log.d("CTImagePicker", "extra data Key: " + key + ", Value: " + extras.get(key));
+            }
+
             setResult(Activity.RESULT_OK, data);
+
             finish();
         }
     }
