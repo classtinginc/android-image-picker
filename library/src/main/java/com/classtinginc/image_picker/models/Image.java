@@ -3,8 +3,6 @@ package com.classtinginc.image_picker.models;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
-import com.google.gson.annotations.Expose;
-
 import java.io.File;
 import java.io.Serializable;
 
@@ -14,10 +12,7 @@ import java.io.Serializable;
 
 public class Image implements Serializable {
 
-    @Expose
     private String thumbId;
-
-    @Expose
     private String thumbPath;
     private String thumbsImageID;
     private int selectedIndex = -1;

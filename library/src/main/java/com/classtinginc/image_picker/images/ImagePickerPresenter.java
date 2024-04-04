@@ -151,7 +151,7 @@ class ImagePickerPresenter {
                 Log.i("Classting:::", String.valueOf(ex));
             }
 
-            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            Gson gson = new GsonBuilder().create();
             view.done(gson.toJson(selectedImages));
         }
     }
@@ -167,7 +167,7 @@ class ImagePickerPresenter {
                 Log.i("Classting:::", String.valueOf(ex));
             }
 
-            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            Gson gson = new GsonBuilder().create();
             view.done(gson.toJson(selectedImages));
         }
     }
