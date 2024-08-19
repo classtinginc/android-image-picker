@@ -1,12 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "30.0.3"
+    compileSdk 34
+    namespace 'com.classtinginc.image_picker'
+
     defaultConfig {
         applicationId "com.classtinginc.image_picker"
-        minSdkVersion 16
-        targetSdkVersion 33
+        minSdkVersion 23
+        targetSdkVersion 34
+
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
