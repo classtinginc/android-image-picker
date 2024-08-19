@@ -2,6 +2,10 @@ package com.classtinginc.image_picker;
 
 import android.app.Activity;
 import android.content.Intent;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,17 +17,31 @@ import com.classtinginc.image_picker.consts.Extra;
 public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 1;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                            // Callback is invoked after the user selects a media item or closes the
+                            // photo picker.
+                            if (uri != null) {
+                                Log.d("PhotoPicker", "Selected URI: " + uri);
+                            } else {
+                                Log.d("PhotoPicker", "No media selected");
+                            }
+                        }
+                );
+
         findViewById(R.id.multiple).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ImagePicker
-                    .with(MainActivity.this)
+                    .with(pickMedia)
                     .maxSize(3)
                     .availableSize(3)
                     .allowMultiple(true)
@@ -35,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ImagePicker
-                    .with(MainActivity.this)
+                    .with(pickMedia)
                     .allowMultiple(false)
                     .startActivityForResult(REQUEST_CODE);
             }

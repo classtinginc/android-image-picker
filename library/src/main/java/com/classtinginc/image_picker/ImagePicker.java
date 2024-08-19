@@ -2,6 +2,12 @@ package com.classtinginc.image_picker;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.folders.LocalFoldersActivity;
@@ -12,17 +18,17 @@ import com.classtinginc.image_picker.folders.LocalFoldersActivity;
 
 public class ImagePicker {
 
-    private Activity activity;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private int style;
     private int maxSize = 1;
     private int availableSize = 1;
     private boolean allowMultiple;
 
-    public ImagePicker(Activity activity) {
-        this.activity = activity;
+    public ImagePicker(ActivityResultLauncher<PickVisualMediaRequest> pickMedia) {
+        this.pickMedia = pickMedia;
     }
 
-    public static ImagePicker with(Activity context) {
+    public static ImagePicker with(ActivityResultLauncher<PickVisualMediaRequest> context) {
         return new ImagePicker(context);
     }
 
@@ -51,11 +57,9 @@ public class ImagePicker {
     }
 
     public void startActivityForResult(int requestCode) {
-        Intent intent = new Intent(activity, LocalFoldersActivity.class);
-        intent.putExtra(Extra.STYLE, style);
-        intent.putExtra(Extra.MAX_SIZE, maxSize);
-        intent.putExtra(Extra.AVAILABLE_SIZE, availableSize);
-        intent.putExtra(Extra.ALLOW_MULTIPLE, allowMultiple);
-        activity.startActivityForResult(intent, requestCode);
+        // Launch the photo picker and let the user choose images and videos.
+        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build());
     }
 }
