@@ -1,146 +1,179 @@
 package com.classtinginc.image_picker.folders;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.classtinginc.image_picker.consts.Extra;
-import com.classtinginc.image_picker.images.ImagePickerActivity;
-import com.classtinginc.image_picker.models.Folder;
-import com.classtinginc.image_picker.utils.ActivityUtils;
-import com.classtinginc.image_picker.utils.TranslationUtils;
-import com.classtinginc.library.R;
+import com.classtinginc.image_picker.images.ImageConverter;
+import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.utils.ImageUtils;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class LocalFoldersActivity extends AppCompatActivity implements LocalFoldersView, AdapterView.OnItemClickListener {
-
-    private final int REQUEST_CODE = 1;
-
-    private LocalFoldersPresenter presenter;
-    private LocalFoldersAdapter adapter;
+public class LocalFoldersActivity extends AppCompatActivity {
+    private ArrayList<String> targetExtensions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_local_folders);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos, R.drawable.ic_close);
+        targetExtensions = new ArrayList<>(
+                Arrays.asList(
+                        "heic",
+                        "heif"
+                ));
 
-        presenter = new LocalFoldersPresenter(this);
-        adapter = new LocalFoldersAdapter(this);
+        ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMedia =
+                registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(50), uris -> {
+                    if (!uris.isEmpty()) {
+                        Log.d("imagePickerExample", "media selected");
 
-        ListView listView = findViewById(R.id.list);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(this);
+                        try {
+                            Log.d("imagePickerExample", "media selected 1");
+                            ArrayList<Image> images = convertUriToImage(uris);
+                            convertImageFormat(images);
 
-        checkPermission();
+                            Log.d("imagePickerExample", "media selected 2");
+
+                            for(Image image : images) {
+                                Log.d("imagePickerExample", image.getImageExtension());
+                            }
+
+                            Log.d("imagePickerExample", "media selected 3");
+                            Log.d("imagePickerExample", "media selected images length" + uris.size());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        Intent intent = new Intent();
+                        intent.putExtra(Extra.DATA, "");
+
+                        setResult(Activity.RESULT_OK, intent);
+
+                        finish();
+                    } else {
+                        Log.d("imagePickerExample", "No media selected");
+                    }
+                });
+
+        pickMultipleMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .build());
     }
 
-    @Override
-    protected void onDestroy() {
-        presenter.unsubscribe();
-        super.onDestroy();
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
+    /**
+     * 이미지를 다른 포맷으로 변환합니다.
+     *
+     * @param inputImagePath 원본 이미지의 경로
+     * @param outputImagePath 새로 생성될 이미지의 경로
+     * @param format 변경할 이미지 형식 (jpg, png, bmp, wbmp, gif 등)
+     * @return 파일 형식 변환에 성공하면 true, 그렇지 않으면 false 반환
+     * @throws IOException 이미지 쓰기 중 에러가 발생하면 예외 발생
+     */
+    public boolean convertFormat(String inputImagePath,
+                                 String outputImagePath, Bitmap.CompressFormat format) throws IOException {
+        FileInputStream inputStream = new FileInputStream(inputImagePath);
+        FileOutputStream outputStream = new FileOutputStream(outputImagePath);
+
+        Bitmap bitmapFactory = BitmapFactory.decodeFile(inputImagePath);
+        ExifInterface originalExif = new ExifInterface(inputImagePath);
+        String originalOrientation = originalExif.getAttribute(ExifInterface.TAG_ORIENTATION);
+
+        boolean result = bitmapFactory.compress(format,100, outputStream);
+
+        if (shouldSetOrientation(originalOrientation)) {
+            ExifInterface exif = new ExifInterface(outputImagePath);
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, originalOrientation);
+            exif.saveAttributes();
         }
-        return super.onOptionsItemSelected(item);
+
+        outputStream.close();
+        inputStream.close();
+
+        return result;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        Folder folder = adapter.getItem(position);
-
-        Intent intent = new Intent(this, ImagePickerActivity.class);
-        intent.putExtra(Extra.DATA, folder);
-        intent.putExtras(getIntent().getExtras());
-
-        startActivityForResult(intent, REQUEST_CODE);
+    public boolean checkIsTargetExtension(String fileExt) {
+        return this.targetExtensions.contains(fileExt);
     }
 
-    private void checkPermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED}, REQUEST_CODE);
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, REQUEST_CODE);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, REQUEST_CODE);
-        }
+    private boolean shouldSetOrientation(String orientation) {
+        return !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_NORMAL))
+                && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
     }
 
-    @Override
-    public void showFolders(ArrayList<Folder> folders) {
-        adapter.setItems(folders);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
-            Bundle extras = data.getExtras();
-            for (String key : extras.keySet()) {
-                Log.d("CTImagePicker", "extra data Key: " + key + ", Value: " + extras.get(key));
-            }
-
-            setResult(Activity.RESULT_OK, data);
-
-            finish();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE) {
-            boolean granted = false;
-            for (int i=0; i< grantResults.length; i++) {
-                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    granted = true;
+    public void convertImageFormat(ArrayList<Image> selectedImages) throws IOException {
+        for(Image image : selectedImages) {
+            if (this.checkIsTargetExtension(image.getImageExtension())) {
+                String path = image.getThumbPath();
+                String outputImagePath = this.getCacheDir().toString() + "/" + image.getImageName() + ".jpeg";
+                try {
+                    boolean result = this.convertFormat(path, outputImagePath, Bitmap.CompressFormat.JPEG);
+                    if (result == true) {
+                        image.setThumbPath(outputImagePath);
+                    }
+                } catch (IOException ex) {
+                    throw ex;
                 }
             }
-
-            if(granted) {
-                presenter.showFolders(LocalFoldersActivity.this);
-            } else {
-                Toast.makeText(
-                        LocalFoldersActivity.this,
-                        TranslationUtils.gePermissionGuide(LocalFoldersActivity.this),
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                finish();
-            }
         }
+    }
+
+    public ArrayList<Image> convertUriToImage(List<Uri> uris) throws IOException {
+        ArrayList<Image> images = new ArrayList<>();
+
+        Log.d("imagePickerExample", "loop index : 1, count: " + uris.size());
+
+        try {
+            for(Uri uri : uris) {
+                Log.d("imagePickerExample", "loop index");
+
+                Cursor cursor = this.getContentResolver().query(
+                        uri,
+                        ImageUtils.proj,
+                        MediaStore.Images.Media.DATA + " like ? ",
+                        null,
+                        MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+
+                String thumbsID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+                String thumbsAbsPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                String thumbsImageID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+
+                Log.d("imagePickerExample", "loop index : 2");
+
+                if (thumbsImageID != null) {
+                    images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
+                }
+
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Log.d("imagePickerExample", "loop index : 3");
+
+        return images;
     }
 }

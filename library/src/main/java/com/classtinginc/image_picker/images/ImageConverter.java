@@ -1,17 +1,22 @@
 package com.classtinginc.image_picker.images;
 
 import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.utils.ImageUtils;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class ImageConverter {
     private ArrayList<String> targetExtensions;
@@ -82,6 +87,37 @@ public class ImageConverter {
                 }
             }
         }
+    }
+
+    public ArrayList<Image> convertUriToImage(List<Uri> uris) throws IOException {
+        ArrayList<Image> images = new ArrayList<>();
+
+        try {
+            for(Uri uri : uris) {
+                Cursor cursor = context.getContentResolver().query(
+                        uri,
+                        ImageUtils.proj,
+                        MediaStore.Images.Media.DATA + " like ? ",
+                        null,
+                        MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+
+                String thumbsID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID));
+                String thumbsAbsPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                String thumbsImageID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+
+                if (thumbsImageID != null) {
+                    images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
+                }
+
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return images;
     }
 }
 

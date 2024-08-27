@@ -89,7 +89,7 @@ class ImagePickerPresenter {
                     contentsUri,
                     ImageUtils.proj,
                     MediaStore.Images.Media.DATA + " like ? ",
-                    new String[] { "%" + dirPath + "%" },
+                    new String[]{"%" + dirPath + "%"},
                     MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
 
             if (imageCursor != null && imageCursor.moveToFirst()) {
