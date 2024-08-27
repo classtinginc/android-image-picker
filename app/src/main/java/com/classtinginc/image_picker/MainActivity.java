@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ImagePicker
                         .with(MainActivity.this)
+                        .allowMultiple(true)
                         .startActivityForResult(REQUEST_CODE);
             }
         });
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ImagePicker
                         .with(MainActivity.this)
+                        .allowMultiple(false)
                         .startActivityForResult(REQUEST_CODE);
             }
         });

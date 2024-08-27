@@ -20,6 +20,8 @@ import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.images.ImageConverter;
 import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.utils.ImageUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,42 +43,73 @@ public class LocalFoldersActivity extends AppCompatActivity {
                         "heif"
                 ));
 
-        ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMedia =
-                registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(50), uris -> {
-                    if (!uris.isEmpty()) {
-                        Log.d("imagePickerExample", "media selected");
+        boolean allowMultiple = getIntent().getBooleanExtra(Extra.ALLOW_MULTIPLE, false);
 
-                        try {
-                            Log.d("imagePickerExample", "media selected 1");
-                            ArrayList<Image> images = convertUriToImage(uris);
-                            convertImageFormat(images);
+        Log.d("imagePickerExample", "aa: " + allowMultiple);
 
-                            Log.d("imagePickerExample", "media selected 2");
+        if(allowMultiple) {
+            ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMedia =
+                    registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(50), uris -> {
+                        if (!uris.isEmpty()) {
+                            try {
+                                Gson gson = new GsonBuilder().create();
+                                Intent intent = new Intent();
 
-                            for(Image image : images) {
-                                Log.d("imagePickerExample", image.getImageExtension());
+                                ArrayList<Image> images = convertUrisToImages(uris);
+                                convertImageFormat(images);
+
+                                String value = gson.toJson(images);
+                                intent.putExtra(Extra.DATA, value);
+
+                                setResult(Activity.RESULT_OK, intent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
 
-                            Log.d("imagePickerExample", "media selected 3");
-                            Log.d("imagePickerExample", "media selected images length" + uris.size());
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            finish();
+                        } else {
+                            Log.d("imagePickerExample", "No media selected");
                         }
+                    });
 
-                        Intent intent = new Intent();
-                        intent.putExtra(Extra.DATA, "");
+            pickMultipleMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                    .build());
+        } else {
+            ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+                    registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                        // Callback is invoked after the user selects a media item or closes the
+                        // photo picker.
+                        if (uri != null) {
+                            try {
+                                Gson gson = new GsonBuilder().create();
+                                Intent intent = new Intent();
 
-                        setResult(Activity.RESULT_OK, intent);
+                                ArrayList<Image> images = new ArrayList<>();
+                                Image image = convertUriToImage(uri, 0);
+                                images.add(image);
 
-                        finish();
-                    } else {
-                        Log.d("imagePickerExample", "No media selected");
-                    }
-                });
+                                convertImageFormat(images);
 
-        pickMultipleMedia.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-                .build());
+                                String value = gson.toJson(images);
+                                intent.putExtra(Extra.DATA, value);
+
+                                setResult(Activity.RESULT_OK, intent);
+
+                                finish();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.d("PhotoPicker", "No media selected");
+                        }
+                    });
+
+            // Launch the photo picker and let the user choose only images.
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        }
     }
 
 
@@ -138,41 +171,47 @@ public class LocalFoldersActivity extends AppCompatActivity {
         }
     }
 
-    public ArrayList<Image> convertUriToImage(List<Uri> uris) throws IOException {
-        ArrayList<Image> images = new ArrayList<>();
-
-        Log.d("imagePickerExample", "loop index : 1, count: " + uris.size());
+    public Image convertUriToImage(Uri uri, int index) throws IOException {
+        Image image = null;
 
         try {
-            for(Uri uri : uris) {
-                Log.d("imagePickerExample", "loop index");
+            Cursor cursor = this.getContentResolver().query(
+                    uri,
+                    ImageUtils.proj,
+                    null,
+                    null,
+                    null);
 
-                Cursor cursor = this.getContentResolver().query(
-                        uri,
-                        ImageUtils.proj,
-                        MediaStore.Images.Media.DATA + " like ? ",
-                        null,
-                        MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
-
-                String thumbsID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID));
-                String thumbsAbsPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                String thumbsImageID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-
-                Log.d("imagePickerExample", "loop index : 2");
+            if (cursor != null && cursor.moveToFirst()) {
+                String thumbsID = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                String thumbsAbsPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                String thumbsImageID = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
 
                 if (thumbsImageID != null) {
-                    images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
+                    image = new Image(thumbsID, thumbsAbsPath, thumbsImageID);
+                    image.setSelectedIndex(index);
                 }
+            }
 
-                if (cursor != null) {
-                    cursor.close();
-                }
+            if (cursor != null) {
+                cursor.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Log.d("imagePickerExample", "loop index : 3");
+        return image;
+    }
+
+    public ArrayList<Image> convertUrisToImages(List<Uri> uris) throws IOException {
+        ArrayList<Image> images = new ArrayList<>();
+
+        int index = 0;
+        for(Uri uri : uris) {
+            Image image = convertUriToImage(uri, index);
+            images.add(image);
+            index++;
+        }
 
         return images;
     }

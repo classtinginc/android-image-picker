@@ -3,6 +3,7 @@ package com.classtinginc.image_picker;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.folders.LocalFoldersActivity;
 
 /**
@@ -11,6 +12,11 @@ import com.classtinginc.image_picker.folders.LocalFoldersActivity;
 
 public class ImagePicker {
     private Activity activity;
+    private int style;
+    private int maxSize = 1;
+    private int availableSize = 1;
+    private boolean allowMultiple;
+
 
     public ImagePicker(Activity activity) {
         this.activity = activity;
@@ -20,8 +26,36 @@ public class ImagePicker {
         return new ImagePicker(context);
     }
 
+    public ImagePicker maxSize(int maxSize) {
+        this.maxSize = maxSize;
+        return this;
+    }
+
+    public ImagePicker availableSize(int availableSize) {
+        this.availableSize = availableSize;
+        return this;
+    }
+
+    public ImagePicker allowMultiple(boolean allowMultiple) {
+        this.allowMultiple = allowMultiple;
+        if (!allowMultiple) {
+            maxSize(1);
+            availableSize(1);
+        }
+        return this;
+    }
+
+    public ImagePicker style(int style) {
+        this.style = style;
+        return this;
+    }
+
     public void startActivityForResult(int requestCode) {
         Intent intent = new Intent(activity, LocalFoldersActivity.class);
+        intent.putExtra(Extra.STYLE, style);
+        intent.putExtra(Extra.MAX_SIZE, maxSize);
+        intent.putExtra(Extra.AVAILABLE_SIZE, availableSize);
+        intent.putExtra(Extra.ALLOW_MULTIPLE, allowMultiple);
         activity.startActivityForResult(intent, requestCode);
     }
 }
