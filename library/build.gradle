@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 34
-    buildToolsVersion "30.0.3"
+    compileSdk 34
+    namespace 'com.classtinginc.library'
 
     defaultConfig {
         minSdkVersion 16
