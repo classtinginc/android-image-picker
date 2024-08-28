@@ -1,8 +1,10 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 android {
-    compileSdkVersion 34
-    buildToolsVersion "30.0.3"
+    compileSdk 34
+    namespace 'com.classtinginc.library'
 
     defaultConfig {
         minSdkVersion 16
@@ -16,6 +18,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            publishing
         }
     }
 }
@@ -33,4 +40,18 @@ dependencies {
 
     implementation 'io.reactivex:rxandroid:1.0.1'
     implementation 'com.google.code.gson:gson:2.8.1'
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.classtinginc'
+            artifactId = 'library'
+            version = '1.0.5'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
 }
