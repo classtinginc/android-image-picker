@@ -101,9 +101,9 @@ public class ImageConverter {
                         null,
                         MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
 
-                String thumbsID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID));
-                String thumbsAbsPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                String thumbsImageID = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                String thumbsID = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                String thumbsAbsPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                String thumbsImageID = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
 
                 if (thumbsImageID != null) {
                     images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
