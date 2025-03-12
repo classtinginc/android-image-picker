@@ -23,11 +23,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ImagePicker
-                    .with(MainActivity.this)
-                    .maxSize(3)
-                    .availableSize(3)
-                    .allowMultiple(true)
-                    .startActivityForResult(REQUEST_CODE);
+                        .with(MainActivity.this)
+                        .maxSize(10)
+                        .availableSize(10)
+                        .allowMultiple(true)
+                        .startActivityForResult(REQUEST_CODE);
             }
         });
 

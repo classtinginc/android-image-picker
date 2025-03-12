@@ -51,7 +51,7 @@ public class ImagePicker {
     }
 
     public void startActivityForResult(int requestCode) {
-        Intent intent = new Intent(activity, LocalFoldersActivity.class);
+        Intent intent = new Intent(activity, PickerBridgeActivity.class);
         intent.putExtra(Extra.STYLE, style);
         intent.putExtra(Extra.MAX_SIZE, maxSize);
         intent.putExtra(Extra.AVAILABLE_SIZE, availableSize);
