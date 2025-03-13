@@ -1,4 +1,7 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
     compileSdk 34
@@ -36,4 +39,18 @@ dependencies {
 
     implementation 'io.reactivex:rxandroid:1.0.1'
     implementation 'com.google.code.gson:gson:2.8.1'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId = 'com.classtinginc'
+                artifactId = 'android-image-picker'
+                version = '1.1.26-alpha.17'
+
+                artifact(layout.buildDirectory.file("outputs/aar/library-release.aar"))
+            }
+        }
+    }
 }
