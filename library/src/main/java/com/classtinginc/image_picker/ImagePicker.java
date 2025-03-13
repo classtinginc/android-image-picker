@@ -3,20 +3,20 @@ package com.classtinginc.image_picker;
 import android.app.Activity;
 import android.content.Intent;
 
+import androidx.annotation.Nullable;
+
 import com.classtinginc.image_picker.consts.Extra;
-import com.classtinginc.image_picker.folders.LocalFoldersActivity;
+import com.classtinginc.image_picker.folders.ImagePickerActivity;
+import com.classtinginc.image_picker.modules.MediaType;
 
 /**
  * Created by classting on 02/07/2019.
  */
 
 public class ImagePicker {
-
-    private Activity activity;
-    private int style;
+    private final Activity activity;
     private int maxSize = 1;
-    private int availableSize = 1;
-    private boolean allowMultiple;
+    private String mediaType = "image";
 
     public ImagePicker(Activity activity) {
         this.activity = activity;
@@ -26,36 +26,20 @@ public class ImagePicker {
         return new ImagePicker(context);
     }
 
+    public ImagePicker mediaType(@Nullable String mediaTypeStr) {
+        this.mediaType = mediaTypeStr;
+        return this;
+    }
+
     public ImagePicker maxSize(int maxSize) {
         this.maxSize = maxSize;
         return this;
     }
 
-    public ImagePicker availableSize(int availableSize) {
-        this.availableSize = availableSize;
-        return this;
-    }
-
-    public ImagePicker allowMultiple(boolean allowMultiple) {
-        this.allowMultiple = allowMultiple;
-        if (!allowMultiple) {
-            maxSize(1);
-            availableSize(1);
-        }
-        return this;
-    }
-
-    public ImagePicker style(int style) {
-        this.style = style;
-        return this;
-    }
-
     public void startActivityForResult(int requestCode) {
-        Intent intent = new Intent(activity, LocalFoldersActivity.class);
-        intent.putExtra(Extra.STYLE, style);
+        Intent intent = new Intent(activity, ImagePickerActivity.class);
         intent.putExtra(Extra.MAX_SIZE, maxSize);
-        intent.putExtra(Extra.AVAILABLE_SIZE, availableSize);
-        intent.putExtra(Extra.ALLOW_MULTIPLE, allowMultiple);
+        intent.putExtra(Extra.MEDIA_TYPE, mediaType);
         activity.startActivityForResult(intent, requestCode);
     }
 }

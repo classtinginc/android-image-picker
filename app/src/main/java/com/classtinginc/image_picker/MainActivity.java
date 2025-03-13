@@ -2,16 +2,16 @@ package com.classtinginc.image_picker;
 
 import android.app.Activity;
 import android.content.Intent;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.classtinginc.image_picker.consts.Extra;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Objects;
 
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = AppCompatActivity.class.getSimpleName();
     private final int REQUEST_CODE = 1;
 
     @Override
@@ -19,37 +19,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.multiple).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker
-                    .with(MainActivity.this)
-                    .maxSize(3)
-                    .availableSize(3)
-                    .allowMultiple(true)
-                    .startActivityForResult(REQUEST_CODE);
-            }
-        });
+        findViewById(R.id.multiple).setOnClickListener(v -> ImagePicker
+                .with(MainActivity.this)
+                .mediaType("imageandvideo")
+                .maxSize(10)
+                .startActivityForResult(REQUEST_CODE));
 
-        findViewById(R.id.single).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker
-                    .with(MainActivity.this)
-                    .allowMultiple(false)
-                    .startActivityForResult(REQUEST_CODE);
-            }
-        });
+        findViewById(R.id.single).setOnClickListener(v -> ImagePicker
+                .with(MainActivity.this)
+                .mediaType("image")
+                .startActivityForResult(REQUEST_CODE));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.e(TAG, "onActivityResult resultCode: " + resultCode);
+
         if (resultCode == Activity.RESULT_CANCELED) {
-            Log.e("imagePickerExample", "canceled");
+            Log.e(TAG, "Canceled");
         } else if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
-            Log.e("imagePicker", data.getStringExtra(Extra.DATA));
+            Log.e(TAG, Objects.requireNonNull(data.getStringExtra(Extra.DATA)));
+        } else if (resultCode == REQUEST_CODE) {
+            Log.e(TAG, "REQUEST_CODE");
         }
     }
 }
