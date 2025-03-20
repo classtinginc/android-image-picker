@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.classtinginc.library">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-
         <activity
-            android:name="com.classtinginc.image_picker.folders.LocalFoldersActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:name="com.classtinginc.image_picker.folders.ImagePickerActivity"
+            android:theme="@style/TransparentActivityTheme"
             android:exported="true" />
 
-        <activity
-            android:name="com.classtinginc.image_picker.images.ImagePickerActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="true" />
-
+        <!--suppress AndroidDomInspection -->
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
     </application>
 </manifest>
