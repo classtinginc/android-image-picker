@@ -13,9 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +28,7 @@ import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,9 +108,11 @@ public class ImagePickerActivity extends AppCompatActivity {
 
         try {
             String fileName = getFileName(this, uri);
-            String realPath = getRealPathFromUri(uri, fileName);
+            String filePath = getPathFromUri(uri, fileName);
 
-            media = new Media(realPath, fileName);
+            if (fileName != null && !fileName.isEmpty() && filePath != null && !filePath.isEmpty()) {
+                media = new Media(filePath, fileName);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Convert uri to video media error", e);
         }
@@ -120,38 +121,31 @@ public class ImagePickerActivity extends AppCompatActivity {
         return media;
     };
 
-    private String getPathFromUriLegacy(Uri uri) {
-        if (uri == null) return null;
-
-        String filePath = null;
-        String[] projection = { MediaStore.Files.FileColumns.DATA };
-
-        try (Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-
-                if (columnIndex != -1) {
-                    filePath = cursor.getString(columnIndex);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get file path from URI (legacy)", e);
-        }
-
-        return filePath;
-    }
-
     public String getPathFromUri(Uri uri, String fileName) {
         if (uri == null) return null;
 
         if (fileName == null || fileName.isEmpty()) {
-            fileName = "default_file_name";
+            fileName = "default_media_name";
         }
 
-        File file = new File(this.getCacheDir(), fileName);
+        File file;
+        try {
+            file = new File(this.getCacheDir(), fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "I/O error while creating file in cache directory", e);
+            return null;
+        }
 
         try (InputStream inputStream = this.getContentResolver().openInputStream(uri);
              OutputStream outputStream = new FileOutputStream(file)) {
+
+            if (inputStream == null) {
+                Log.e(TAG, "Failed to open InputStream from URI");
+                return null;
+            }
 
             byte[] buffer = new byte[1024];
             int length;
@@ -160,19 +154,13 @@ public class ImagePickerActivity extends AppCompatActivity {
             }
             return file.getAbsolutePath();
 
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get file path from URI", e);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "File not found for URI: " + uri, e);
+        } catch (IOException e) {
+            Log.e(TAG, "I/O error while processing URI: " + uri, e);
         }
 
         return null;
-    }
-
-    private String getRealPathFromUri(Uri uri, String fileName) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return getPathFromUriLegacy(uri);
-        } else {
-            return getPathFromUri(uri, fileName);
-        }
     }
 
     private void handleMediaSelection(List<Uri> uris) {
