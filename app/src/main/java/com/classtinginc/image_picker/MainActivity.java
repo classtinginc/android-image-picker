@@ -11,7 +11,7 @@ import com.classtinginc.image_picker.consts.Extra;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = AppCompatActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
     private final int REQUEST_CODE = 1;
 
     @Override

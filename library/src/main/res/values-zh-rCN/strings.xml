@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">image-picker</string>
+    <string name="alert.device_permission_denied">需要权限才能访问媒体文件。\n请在 设置 > 应用程序 中启用权限。</string>
+    <string name="toast.write_post.attach_photo_limit">最多可添加 %d 个项目。</string>
+    <string name="btn.attach_photo">上传 %d</string>
+    <string name="btn.attach_photo_pl">上传 %d</string>
+    <string name="count.photo">%d</string>
+    <string name="count.photo_pl">%d</string>
+</resources>
