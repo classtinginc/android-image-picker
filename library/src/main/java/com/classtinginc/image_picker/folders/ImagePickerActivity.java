@@ -13,7 +13,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +48,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                     "heif"
             ));
     ActivityResultLauncher<PickVisualMediaRequest> mediaPicker;
+    Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +73,17 @@ public class ImagePickerActivity extends AppCompatActivity {
 
         if (mediaCount == 1) {
             mediaPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                if (uri != null) handleMediaSelection(Collections.singletonList(uri));
-                else Log.d(TAG, "No media selected");
-                finish();
+                if (uri != null)
+                    handleMediaSelection(Collections.singletonList(uri));
+                else
+                    finish();
             });
         } else {
             mediaPicker = registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(mediaCount), uris -> {
-                if (!uris.isEmpty()) handleMediaSelection(uris);
-                else Log.d(TAG, "No media selected");
-                finish();
+                if (!uris.isEmpty())
+                    handleMediaSelection(uris);
+                else
+                    finish();
             });
         }
 
@@ -166,36 +171,39 @@ public class ImagePickerActivity extends AppCompatActivity {
     private void handleMediaSelection(List<Uri> uris) {
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
+        new Thread(() -> {
+            try {
+                Gson gson = new GsonBuilder().create();
+                ArrayList<Media> mediums = new ArrayList<>();
 
-        try {
-            Gson gson = new GsonBuilder().create();
-            Intent intent = new Intent();
+                for (Uri uri : uris) {
+                    String mimeType = getContentResolver().getType(uri);
+                    Media media = convertUriToMedia(uri);
 
-            ArrayList<Media> mediums = new ArrayList<>();
-
-            for (Uri uri : uris) {
-                String mimeType = getContentResolver().getType(uri);
-                Media media = convertUriToMedia(uri);
-
-                if (mimeType != null) {
-                    if (mimeType.startsWith("image/")) {
-                        convertImageFormat(media);
-                        mediums.add(media);
-                    } else if (mimeType.startsWith("video/")) {
-                        mediums.add(media);
-                    } else {
-                        Log.d(TAG, "Unknown media type.");
+                    if (mimeType != null) {
+                        if (mimeType.startsWith("image/")) {
+                            convertImageFormat(media);
+                            mediums.add(media);
+                        } else if (mimeType.startsWith("video/")) {
+                            mediums.add(media);
+                        } else {
+                            Log.d(TAG, "Unknown media type.");
+                        }
                     }
                 }
+                Intent intent = new Intent();
+                intent.putExtra(Extra.DATA, gson.toJson(mediums));
+                setResult(Activity.RESULT_OK, intent);
+                Log.d(TAG, "handleMediaSelection ConvertImage Success" + intent);
+            } catch (Exception e) {
+                Log.e(TAG, "Handle media selection error", e);
+            } finally {
+                mHandler.post(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    finish();
+                });
             }
-
-            intent.putExtra(Extra.DATA, gson.toJson(mediums));
-            setResult(Activity.RESULT_OK, intent);
-        } catch (Exception e) {
-            Log.e(TAG, "Handle media selection error", e);
-        } finally {
-            progressBar.setVisibility(View.GONE);
-        }
+        }).start();
     }
 
     /**
