@@ -8,4 +8,5 @@ public class Extra {
     public final static String MEDIA_TYPE = "MEDIA_TYPE";
     public final static String MAX_SIZE = "MAX_SIZE";
     public final static String DATA = "DATA";
+
 }

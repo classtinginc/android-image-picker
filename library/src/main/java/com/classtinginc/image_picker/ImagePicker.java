@@ -5,9 +5,8 @@ import android.content.Intent;
 
 import androidx.annotation.Nullable;
 
+import com.classtinginc.image_picker.consts.Constants;
 import com.classtinginc.image_picker.consts.Extra;
-import com.classtinginc.image_picker.folders.ImagePickerActivity;
-import com.classtinginc.image_picker.modules.MediaType;
 
 /**
  * Created by classting on 02/07/2019.
@@ -15,8 +14,8 @@ import com.classtinginc.image_picker.modules.MediaType;
 
 public class ImagePicker {
     private final Activity activity;
-    private int maxSize = 1;
-    private String mediaType = "image";
+    private int maxSize = Constants.DEFAULT_MAX_SIZE;
+    private String mediaType = Constants.DEFAULT_MEDIA_TYPE;
 
     public ImagePicker(Activity activity) {
         this.activity = activity;
