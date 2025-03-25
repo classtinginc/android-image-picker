@@ -35,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.e(TAG, "onActivityResult resultCode: " + resultCode);
+        Log.d(TAG, "onActivityResult resultCode: " + resultCode);
 
         if (resultCode == Activity.RESULT_CANCELED) {
-            Log.e(TAG, "Canceled");
+            Log.d(TAG, "Canceled");
         } else if (resultCode == Activity.RESULT_OK && data != null && data.hasExtra(Extra.DATA)) {
-            Log.e(TAG, Objects.requireNonNull(data.getStringExtra(Extra.DATA)));
+            Log.d(TAG, Objects.requireNonNull(data.getStringExtra(Extra.DATA)));
         } else if (resultCode == REQUEST_CODE) {
-            Log.e(TAG, "REQUEST_CODE");
+            Log.d(TAG, "REQUEST_CODE");
         }
     }
 }
