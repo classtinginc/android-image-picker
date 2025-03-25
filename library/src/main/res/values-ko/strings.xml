@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">image-picker</string>
+    <string name="alert.device_permission_denied">미디어 파일을 불러오려면 권한이 필요해요.\n설정 > 애플리케이션에서 권한을 허용해 주세요.</string>
+    <string name="toast.write_post.attach_photo_limit">최대 %d개 까지 첨부할 수 있어요</string>
+    <string name="btn.attach_photo">%d개 업로드</string>
+    <string name="btn.attach_photo_pl">%d개 업로드</string>
+    <string name="count.photo">%d</string>
+    <string name="count.photo_pl">%d</string>
+</resources>
