@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">image-picker</string>
+    <string name="alert.device_permission_denied">需要權限才能存取媒體檔案。\n請至 設定 > 應用程式 中允許權限。</string>
+    <string name="toast.write_post.attach_photo_limit">最多可附加 %d 個項目。</string>
+    <string name="btn.attach_photo">上傳 %d</string>
+    <string name="btn.attach_photo_pl">上傳 %d</string>
+    <string name="count.photo">%d</string>
+    <string name="count.photo_pl">%d</string>
+</resources>

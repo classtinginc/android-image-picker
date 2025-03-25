@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="semi_transparent_bg">#80000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="white_12">#1fffffff</color>
+    <color name="white_54">#8affffff</color>
+    <color name="grey_300">#e0e0e0</color>
+    <color name="black_87">#de000000</color>
+    <color name="black_54">#8a000000</color>
     <color name="green_500">#00c896</color>
+    <color name="green_900">#0b8d6c</color>
+    <color name="semi_transparent_bg">#80000000</color>
 </resources>
