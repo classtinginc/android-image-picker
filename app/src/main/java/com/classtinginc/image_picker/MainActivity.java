@@ -2,16 +2,16 @@ package com.classtinginc.image_picker;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+
 import com.classtinginc.image_picker.consts.Extra;
 
-import java.util.Objects;
-
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = AppCompatActivity.class.getSimpleName();
+
     private final int REQUEST_CODE = 1;
 
     @Override
@@ -19,16 +19,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.multiple).setOnClickListener(v -> ImagePicker
-                .with(MainActivity.this)
-                .mediaType("imageandvideo")
-                .maxSize(10)
-                .startActivityForResult(REQUEST_CODE));
+        findViewById(R.id.multiple).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImagePicker
+                    .with(MainActivity.this)
+                    .maxSize(3)
+                    .availableSize(3)
+                    .allowMultiple(true)
+                    .startActivityForResult(REQUEST_CODE);
+            }
+        });
 
-        findViewById(R.id.single).setOnClickListener(v -> ImagePicker
-                .with(MainActivity.this)
-                .mediaType("image")
-                .startActivityForResult(REQUEST_CODE));
+        findViewById(R.id.single).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImagePicker
+                    .with(MainActivity.this)
+                    .allowMultiple(false)
+                    .startActivityForResult(REQUEST_CODE);
+            }
+        });
     }
 
     @Override
