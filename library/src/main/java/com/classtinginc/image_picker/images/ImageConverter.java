@@ -14,8 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ImageConverter {
-    private ArrayList<String> targetExtensions;
-    private Context context;
+    private final ArrayList<String> targetExtensions;
+    private final Context context;
 
     ImageConverter(Context context) {
         this.context = context;
@@ -36,7 +36,7 @@ public class ImageConverter {
      * @throws IOException 이미지 쓰기 중 에러가 발생하면 예외 발생
      */
     public boolean convertFormat(String inputImagePath,
-                                        String outputImagePath, Bitmap.CompressFormat format) throws IOException {
+                                 String outputImagePath, Bitmap.CompressFormat format) throws IOException {
         FileInputStream inputStream = new FileInputStream(inputImagePath);
         FileOutputStream outputStream = new FileOutputStream(outputImagePath);
 
@@ -69,13 +69,13 @@ public class ImageConverter {
 
     public void convertImageFormat(ArrayList<Image> selectedImages) throws IOException {
         for(Image image : selectedImages) {
-            if (this.checkIsTargetExtension(image.getImageExtension())) {
-                String path = image.getThumbPath();
-                String outputImagePath = context.getCacheDir().toString() + "/" + image.getImageName() + ".jpeg";
+            if (this.checkIsTargetExtension(image.getExtension())) {
+                String path = image.getMediaPath();
+                String outputImagePath = context.getCacheDir().toString() + "/" + image.getMediaName() + ".jpeg";
                 try {
                     boolean result = this.convertFormat(path, outputImagePath, Bitmap.CompressFormat.JPEG);
                     if (result == true) {
-                        image.setThumbPath(outputImagePath);
+                        image.setMediaPath(outputImagePath);
                     }
                 } catch (IOException ex) {
                     throw ex;
@@ -84,4 +84,3 @@ public class ImageConverter {
         }
     }
 }
-

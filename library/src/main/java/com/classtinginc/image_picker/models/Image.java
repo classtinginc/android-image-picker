@@ -3,6 +3,8 @@ package com.classtinginc.image_picker.models;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.Serializable;
 
@@ -12,36 +14,28 @@ import java.io.Serializable;
 
 public class Image implements Serializable {
 
-    private String thumbId;
-    private String thumbPath;
-    private String thumbsImageID;
+    private String path;
+    private String name;
     private int selectedIndex = -1;
 
-    public Image(String thumbId, String thumbPath, String thumbsImageID) {
-        this.thumbId = thumbId;
-        this.thumbPath = thumbPath;
-        this.thumbsImageID = thumbsImageID;
+    public Image(String path, String name) {
+        this.path = path;
+        this.name = name;
     }
 
-    public void setThumbId(String thumbId) {
-        this.thumbId = thumbId;
+    public void setMediaPath(String path) {
+        this.path = path;
     }
 
-    public String getThumbId() {
-        return this.thumbId;
+    public String getMediaPath() {
+        return this.path;
     }
 
-    public void setThumbPath(String thumbPath) {
-        this.thumbPath = thumbPath;
+    public String getMediaName() {
+        return this.name.replaceFirst("[.][^.]+$", "");
     }
 
-    public String getThumbPath() {
-        return this.thumbPath;
-    }
-
-    public String getImageName() {
-        return this.thumbsImageID.replaceFirst("[.][^.]+$", "");
-    }
+    public void setMediaName(String name) { this.name = name; }
 
     public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
@@ -51,9 +45,17 @@ public class Image implements Serializable {
         return this.selectedIndex;
     }
 
-    public String getImageExtension() {
-        Uri file = Uri.fromFile(new File(this.thumbPath));
-        String fileExt = MimeTypeMap.getFileExtensionFromUrl(file.toString());
-        return fileExt;
+    public String getExtension() {
+        Uri file = Uri.fromFile(new File(this.name));
+        return MimeTypeMap.getFileExtensionFromUrl(file.toString());
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Media{" +
+                "name='" + name + '\'' +
+                ", path='" + path + '\'' +
+                '}';
     }
 }

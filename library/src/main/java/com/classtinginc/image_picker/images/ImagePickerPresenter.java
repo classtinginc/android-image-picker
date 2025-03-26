@@ -33,7 +33,6 @@ class ImagePickerPresenter {
     private CompositeSubscription subscriptions;
     private ArrayList<Image> selectedImages;
     private int maxSize;
-    private int availableSize;
     private boolean allowMultiple;
 
     ImagePickerPresenter(ImagePickerView view) {
@@ -46,10 +45,6 @@ class ImagePickerPresenter {
         this.maxSize = maxSize;
     }
 
-    void setAvailableSize(int availableSize) {
-        this.availableSize = availableSize;
-    }
-
     void setAllowMultiple(boolean allowMultiple) {
         this.allowMultiple = allowMultiple;
     }
@@ -60,11 +55,11 @@ class ImagePickerPresenter {
 
     void showImages(final Context context, final Folder folder) {
         subscriptions.add(Observable.create(new Observable.OnSubscribe<ArrayList<Image>>() {
-            @Override
-            public void call(Subscriber<? super ArrayList<Image>> subscriber) {
-                subscriber.onNext(getImages(context, folder.getPath()));
-            }
-        }).subscribeOn(Schedulers.newThread())
+                    @Override
+                    public void call(Subscriber<? super ArrayList<Image>> subscriber) {
+                        subscriber.onNext(getImages(context, folder.getPath()));
+                    }
+                }).subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<ArrayList<Image>>() {
                     @Override
@@ -93,22 +88,19 @@ class ImagePickerPresenter {
                     MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
 
             if (imageCursor != null && imageCursor.moveToFirst()) {
-                String thumbsID;
                 String thumbsImageID;
                 String thumbsAbsPath;
 
-                int thumbsIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
                 int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
                 int thumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
 
                 do {
-                    thumbsID = imageCursor.getString(thumbsIDCol);
                     thumbsAbsPath = imageCursor.getString(thumbsDataCol);
                     thumbsImageID = imageCursor.getString(thumbsImageIDCol);
 
                     String dirMatcher = "[^\\.]*" + dirPath.replaceAll("/", "\\\\/") + "[^/]*\\.[^\\.]*$";
                     if (thumbsAbsPath.matches(dirMatcher) && thumbsImageID != null) {
-                        images.add(0, new Image(thumbsID, thumbsAbsPath, thumbsImageID));
+                        images.add(0, new Image(thumbsAbsPath, thumbsImageID));
                     }
                 } while (imageCursor.moveToNext());
             }
@@ -131,7 +123,7 @@ class ImagePickerPresenter {
                 i.setSelectedIndex(selectedImages.indexOf(i));
             }
         } else {
-            if (selectedImages.size() >= availableSize) {
+            if (selectedImages.size() >= maxSize) {
                 view.showCheckMaxSize(maxSize);
                 return;
             }
@@ -144,15 +136,7 @@ class ImagePickerPresenter {
             view.updateButtonState(selectedImages.size());
             view.notifyDataSetChanged();
         } else {
-            try {
-                ImageConverter imageConverter = new ImageConverter(context);
-                imageConverter.convertImageFormat(selectedImages);
-            } catch (IOException ex) {
-                Log.i("Classting:::", String.valueOf(ex));
-            }
-
-            Gson gson = new GsonBuilder().create();
-            view.done(gson.toJson(selectedImages));
+            view.done(selectedImages);
         }
     }
 
@@ -160,15 +144,7 @@ class ImagePickerPresenter {
         if (selectedImages.isEmpty()) {
             view.cancel();
         } else {
-            try {
-                ImageConverter imageConverter = new ImageConverter(context);
-                imageConverter.convertImageFormat(selectedImages);
-            } catch (IOException ex) {
-                Log.i("Classting:::", String.valueOf(ex));
-            }
-
-            Gson gson = new GsonBuilder().create();
-            view.done(gson.toJson(selectedImages));
+            view.done(selectedImages);
         }
     }
 }

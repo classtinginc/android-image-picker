@@ -54,7 +54,7 @@ public class ItemImage extends RelativeLayout {
 
     public void bind(final Image image, boolean visibleCheck) {
         Glide.with(getContext())
-                .load("file://" + image.getThumbPath())
+                .load("file://" + image.getMediaPath())
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
                 .apply(ImageUtils.getDefaultOptions())
                 .into(imageView);

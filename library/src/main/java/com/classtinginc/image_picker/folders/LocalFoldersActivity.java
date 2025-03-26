@@ -1,8 +1,6 @@
 package com.classtinginc.image_picker.folders;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +29,7 @@ import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LocalFoldersActivity extends AppCompatActivity implements LocalFoldersView, AdapterView.OnItemClickListener {
 
@@ -42,7 +40,6 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_folders);
@@ -82,19 +79,13 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
         intent.putExtra(Extra.DATA, folder);
-        intent.putExtras(getIntent().getExtras());
+        intent.putExtras(Objects.requireNonNull(getIntent().getExtras()));
 
         startActivityForResult(intent, REQUEST_CODE);
     }
 
     private void checkPermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED}, REQUEST_CODE);
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(this, new String[]{READ_MEDIA_IMAGES}, REQUEST_CODE);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, REQUEST_CODE);
-        }
+        ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, REQUEST_CODE);
     }
 
     @Override

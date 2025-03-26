@@ -12,7 +12,7 @@ public interface ImagePickerView {
     void showImages(ArrayList<Image> images);
     void notifyDataSetChanged();
     void updateButtonState(int selectedImagesCount);
-    void done(String images);
+    void done(ArrayList<Image> images);
     void cancel();
     void showCheckMaxSize(int maxSize);
 }

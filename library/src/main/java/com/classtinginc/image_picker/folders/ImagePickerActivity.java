@@ -1,11 +1,14 @@
 package com.classtinginc.image_picker.folders;
 
+import static com.classtinginc.library.R.*;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,16 +16,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
 
 import com.classtinginc.image_picker.consts.Extra;
-import com.classtinginc.image_picker.models.Media;
+import com.classtinginc.image_picker.models.Image;
 import com.classtinginc.image_picker.modules.MediaType;
 import com.classtinginc.library.R;
 import com.google.gson.Gson;
@@ -35,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,47 +53,71 @@ public class ImagePickerActivity extends AppCompatActivity {
             ));
     ActivityResultLauncher<PickVisualMediaRequest> mediaPicker;
     Handler mHandler = new Handler();
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
+        Log.d(TAG, "너는 누구" + progressBar);
+
+        boolean isPhotoPickerAvailable = ActivityResultContracts.PickVisualMedia.isPhotoPickerAvailable(this);
         String mediaTypeStr = getIntent().getStringExtra(Extra.MEDIA_TYPE);
         int mediaCount = getIntent().getIntExtra(Extra.MAX_SIZE, 1);
 
-        MediaType mediaType = MediaType.fromString(mediaTypeStr);
+        if (isPhotoPickerAvailable) {
+            MediaType mediaType = MediaType.fromString(mediaTypeStr);
 
-        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaTypeEnum;
-        switch (mediaType) {
-            case IMAGE_AND_VIDEO:
-                mediaTypeEnum = ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE;
-                break;
-            case IMAGE:
-            default:
-                mediaTypeEnum = ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
-                break;
-        }
+            ActivityResultContracts.PickVisualMedia.VisualMediaType mediaTypeEnum;
+            switch (mediaType) {
+                case IMAGE_AND_VIDEO:
+                    mediaTypeEnum = ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE;
+                    break;
+                case IMAGE:
+                default:
+                    mediaTypeEnum = ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
+                    break;
+            }
 
-        if (mediaCount == 1) {
-            mediaPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                if (uri != null)
-                    handleMediaSelection(Collections.singletonList(uri));
-                else
-                    finish();
-            });
+            if (mediaCount == 1) {
+                mediaPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri != null)
+                        handleMediaSelection(Collections.singletonList(uri));
+                    else
+                        finish();
+                });
+            } else {
+                mediaPicker = registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(mediaCount), uris -> {
+                    if (!uris.isEmpty())
+                        handleMediaSelection(uris);
+                    else
+                        finish();
+                });
+            }
+
+            mediaPicker.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(mediaTypeEnum)
+                    .build());
         } else {
-            mediaPicker = registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(mediaCount), uris -> {
-                if (!uris.isEmpty())
-                    handleMediaSelection(uris);
-                else
-                    finish();
-            });
-        }
+            ActivityResultLauncher<Intent> localFolderLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            if (data != null) {
+                                ArrayList<Image> images = (ArrayList<Image>) data.getSerializableExtra(Extra.DATA);
+                                handleLegacyMediaSelection(images);
+                            }
+                        }
+                    }
+            );
 
-        mediaPicker.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(mediaTypeEnum)
-                .build());
+            Intent intent = new Intent(this, LocalFoldersActivity.class);
+            intent.putExtra(Extra.MEDIA_TYPE, mediaTypeStr);
+            intent.putExtra(Extra.MAX_SIZE, mediaCount);
+            localFolderLauncher.launch(intent);
+        }
     }
 
     private String getFileName(Context context, Uri uri) {
@@ -108,15 +136,15 @@ public class ImagePickerActivity extends AppCompatActivity {
         return fileName;
     }
 
-    private Media convertUriToMedia(Uri uri) {
-        Media media = null;
+    private Image convertUriToMedia(Uri uri) {
+        Image media = null;
 
         try {
             String fileName = getFileName(this, uri);
             String filePath = getPathFromUri(uri, fileName);
 
             if (fileName != null && !fileName.isEmpty() && filePath != null && !filePath.isEmpty()) {
-                media = new Media(filePath, fileName);
+                media = new Image(filePath, fileName);
             }
         } catch (Exception e) {
             Log.e(TAG, "Convert uri to video media error", e);
@@ -168,17 +196,56 @@ public class ImagePickerActivity extends AppCompatActivity {
         return null;
     }
 
+    private void handleLegacyMediaSelection(ArrayList<Image> images) {
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        new Thread(() -> {
+            try {
+                Gson gson = new GsonBuilder().create();
+                ArrayList<Image> mediums = new ArrayList<>();
+
+                for (Image image : images) {
+                    String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(image.getExtension());
+
+                    if (mimeType != null) {
+                        if (mimeType.startsWith("image/")) {
+                            Log.d(TAG, "변경 전" + image);
+                            convertImageFormat(image);
+                            Log.d(TAG, "변경 후" + image);
+                            mediums.add(image);
+                        } else if (mimeType.startsWith("video/")) {
+                            mediums.add(image);
+                        } else {
+                            Log.d(TAG, "Unknown media type.");
+                        }
+                    }
+                }
+                Intent intent = new Intent();
+                intent.putExtra(Extra.DATA, gson.toJson(mediums));
+                setResult(Activity.RESULT_OK, intent);
+                Log.d(TAG, "handleMediaSelection ConvertImage Success" + intent);
+            } catch (Exception e) {
+                Log.e(TAG, "Handle media selection error", e);
+            } finally {
+                mHandler.post(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    finish();
+                });
+            }
+        }).start();
+    }
+
     private void handleMediaSelection(List<Uri> uris) {
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
                 Gson gson = new GsonBuilder().create();
-                ArrayList<Media> mediums = new ArrayList<>();
+                ArrayList<Image> mediums = new ArrayList<>();
 
                 for (Uri uri : uris) {
                     String mimeType = getContentResolver().getType(uri);
-                    Media media = convertUriToMedia(uri);
+                    Image media = convertUriToMedia(uri);
 
                     if (mimeType != null) {
                         if (mimeType.startsWith("image/")) {
@@ -226,7 +293,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         boolean result = bitmapFactory.compress(Bitmap.CompressFormat.JPEG,100, outputStream);
 
         assert originalOrientation != null;
-        
+
         if (shouldSetOrientation(originalOrientation)) {
             ExifInterface exif = new ExifInterface(outputImagePath);
             exif.setAttribute(ExifInterface.TAG_ORIENTATION, originalOrientation);
@@ -248,7 +315,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                 && !orientation.equals(String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
     }
 
-    private void convertImageFormat(Media media) throws IOException {
+    private void convertImageFormat(Image media) throws IOException {
             if (this.checkIsTargetExtension(media.getExtension())) {
                 String path = media.getMediaPath();
                 String currentMediaName = media.getMediaName();

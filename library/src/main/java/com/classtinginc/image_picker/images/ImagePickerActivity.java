@@ -36,7 +36,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
+//        setTheme(getIntent().getIntExtra(Extra.STYLE, R.style.AppTheme_NoActionBar));
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
@@ -46,12 +46,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos);
 
         int maxSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
-        int availableSize = getIntent().getIntExtra(Extra.AVAILABLE_SIZE, 0);
-        boolean allowMultiple = getIntent().getBooleanExtra(Extra.ALLOW_MULTIPLE, false);
+        boolean allowMultiple = maxSize > 1;
 
         presenter = new ImagePickerPresenter(this);
         presenter.setMaxSize(maxSize);
-        presenter.setAvailableSize(availableSize);
         presenter.setAllowMultiple(allowMultiple);
 
         adapter = new ImagePickerAdapter(this, allowMultiple);
@@ -85,17 +83,7 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     private void checkPermission(Folder folder) {
-        if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                        ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) == PERMISSION_GRANTED
-        ) {
-            presenter.showImages(ImagePickerActivity.this, folder);
-        } else if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                        ContextCompat.checkSelfPermission(this, READ_MEDIA_VISUAL_USER_SELECTED) == PERMISSION_GRANTED
-        ) {
-            presenter.showImages(ImagePickerActivity.this, folder);
-        } else if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
             presenter.showImages(ImagePickerActivity.this, folder);
         } else {
             Toast.makeText(
@@ -136,9 +124,9 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     @Override
-    public void done(String json) {
+    public void done(ArrayList<Image> images) {
         Intent intent = new Intent();
-        intent.putExtra(Extra.DATA, json);
+        intent.putExtra(Extra.DATA, images);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
