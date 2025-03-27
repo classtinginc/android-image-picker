@@ -4,9 +4,9 @@
     <string name="toast.write_post.attach_photo_limit">写真は%d枚まで添付することができます。</string>
     <string name="title.upload_photo.select_photos">写真を選択してください</string>
     <string name="btn.attach_photo">写真アップロード</string>
-    <string name="btn.attach_photo_pl">写真%d枚をアップロード</string>
-    <string name="count.photo">写真%d枚</string>
-    <string name="count.photo_pl">写真%d枚</string>
+    <string name="btn.attach_photo_pl">写真%d枚 動画%d本 をアップロード</string>
+    <string name="count.photo">写真%d枚 / 動画%d本</string>
+    <string name="count.photo_pl">写真%d枚 / 動画%d本</string>
 
 
 </resources>

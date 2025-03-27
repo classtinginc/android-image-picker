@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.images.ImagePickerActivity;
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.modules.MediaType;
 import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
@@ -48,7 +49,10 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
         setSupportActionBar(toolbar);
         ActivityUtils.setNavigation(getSupportActionBar(), R.string.title_upload_photo_select_photos, R.drawable.ic_close);
 
-        presenter = new LocalFoldersPresenter(this);
+        String mediaTypeStr = getIntent().getStringExtra(Extra.MEDIA_TYPE);
+        MediaType mediaType = MediaType.fromString(mediaTypeStr);
+
+        presenter = new LocalFoldersPresenter(this, mediaType);
         adapter = new LocalFoldersAdapter(this);
 
         ListView listView = findViewById(R.id.list);
@@ -76,8 +80,10 @@ public class LocalFoldersActivity extends AppCompatActivity implements LocalFold
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         Folder folder = adapter.getItem(position);
+        String mediaTypeStr = getIntent().getStringExtra(Extra.MEDIA_TYPE);
 
         Intent intent = new Intent(this, ImagePickerActivity.class);
+        intent.putExtra(Extra.MEDIA_TYPE, mediaTypeStr);
         intent.putExtra(Extra.DATA, folder);
         intent.putExtras(Objects.requireNonNull(getIntent().getExtras()));
 

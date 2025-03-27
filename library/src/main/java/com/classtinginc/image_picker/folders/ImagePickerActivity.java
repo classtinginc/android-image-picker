@@ -1,21 +1,21 @@
 package com.classtinginc.image_picker.folders;
 
-import static com.classtinginc.library.R.*;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
+
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,13 +59,11 @@ public class ImagePickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
-        Log.d(TAG, "너는 누구" + progressBar);
-
-        boolean isPhotoPickerAvailable = ActivityResultContracts.PickVisualMedia.isPhotoPickerAvailable(this);
+        boolean canUseSystemPhotoPicker = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
         String mediaTypeStr = getIntent().getStringExtra(Extra.MEDIA_TYPE);
         int mediaCount = getIntent().getIntExtra(Extra.MAX_SIZE, 1);
 
-        if (isPhotoPickerAvailable) {
+        if (canUseSystemPhotoPicker) {
             MediaType mediaType = MediaType.fromString(mediaTypeStr);
 
             ActivityResultContracts.PickVisualMedia.VisualMediaType mediaTypeEnum;
@@ -197,6 +194,7 @@ public class ImagePickerActivity extends AppCompatActivity {
     }
 
     private void handleLegacyMediaSelection(ArrayList<Image> images) {
+        // TODO progressBar null 이슈 해결
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
@@ -252,6 +250,8 @@ public class ImagePickerActivity extends AppCompatActivity {
                             convertImageFormat(media);
                             mediums.add(media);
                         } else if (mimeType.startsWith("video/")) {
+                            long duration = getVideoDuration(uri);
+                            media.setDuration(duration);
                             mediums.add(media);
                         } else {
                             Log.d(TAG, "Unknown media type.");
@@ -327,5 +327,19 @@ public class ImagePickerActivity extends AppCompatActivity {
                     media.setMediaPath(outputImagePath);
                 }
             }
+    }
+
+    private long getVideoDuration(Uri uri) {
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(this, uri);
+            mediaPlayer.prepare();
+            return mediaPlayer.getDuration();
+        } catch (IOException e) {
+            Log.e(TAG, "Get video duration error", e);
+            return 0;
+        } finally {
+            mediaPlayer.release();
+        }
     }
 }

@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import com.classtinginc.image_picker.consts.Extra;
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.modules.MediaType;
 import com.classtinginc.image_picker.utils.ActivityUtils;
 import com.classtinginc.image_picker.utils.TranslationUtils;
 import com.classtinginc.library.R;
@@ -47,8 +48,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
 
         int maxSize = getIntent().getIntExtra(Extra.MAX_SIZE, 0);
         boolean allowMultiple = maxSize > 1;
+        String mediaTypeStr = getIntent().getStringExtra(Extra.MEDIA_TYPE);
 
         presenter = new ImagePickerPresenter(this);
+        presenter.setMediaType(MediaType.fromString(mediaTypeStr));
         presenter.setMaxSize(maxSize);
         presenter.setAllowMultiple(allowMultiple);
 

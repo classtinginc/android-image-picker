@@ -5,10 +5,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.modules.MediaType;
 import com.classtinginc.image_picker.utils.ImageUtils;
 import com.classtinginc.image_picker.utils.Validation;
+import com.classtinginc.image_picker.utils.FileUtils;
 
 import java.util.ArrayList;
 
@@ -27,10 +30,12 @@ class LocalFoldersPresenter {
 
     private LocalFoldersView view;
     private CompositeSubscription subscriptions;
+    private MediaType mediaType;
 
-    LocalFoldersPresenter(LocalFoldersView view) {
+    LocalFoldersPresenter(LocalFoldersView view, MediaType mediaType) {
         this.view = view;
         this.subscriptions = new CompositeSubscription();
+        this.mediaType = mediaType;
     }
 
     void unsubscribe() {
@@ -59,61 +64,126 @@ class LocalFoldersPresenter {
 
     ArrayList<Folder> getFolders(Context context) {
         ArrayList<Folder> folders = new ArrayList<>();
-        Uri contentsUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-                : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-        try {
-            Cursor imageCursor = context.getContentResolver().query(
-                    contentsUri,
-                    ImageUtils.proj,
-                    null,
-                    null,
-                    MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+        if (mediaType == MediaType.IMAGE_AND_VIDEO) {
+            Uri uri = MediaStore.Files.getContentUri("external");
+            String selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? OR " +
+                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?)";
+            String[] selectionArgs = new String[]{
+                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
+            };
+            String sortOrder = MediaStore.Files.FileColumns.DATE_TAKEN + " ASC";
 
-            if (imageCursor != null && imageCursor.moveToFirst()) {
-                String thumbsID;
-                String thumbsImageID;
-                String thumbsAbsPath;//,data,imgSize,thumbsFolderName;
+            try {
+                Cursor mediaCursor = context.getContentResolver().query(
+                        uri, FileUtils.proj, selection, selectionArgs, sortOrder
+                );
 
-                int thumbsIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
-                int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                int thumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+                if (mediaCursor != null && mediaCursor.moveToFirst()) {
+                    String thumbsID;
+                    String thumbsImageID;
+                    String thumbsAbsPath;
 
-                do {
-                    thumbsID = imageCursor.getString(thumbsIDCol);
-                    thumbsAbsPath = imageCursor.getString(thumbsDataCol);
-                    thumbsImageID = imageCursor.getString(thumbsImageIDCol);
+                    int thumbsIDCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns._ID);
+                    int thumbsDataCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                    int thumbsImageIDCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME);
 
-                    if (thumbsImageID != null) {
+                    do {
+                        thumbsID = mediaCursor.getString(thumbsIDCol);
+                        thumbsAbsPath = mediaCursor.getString(thumbsDataCol);
+                        thumbsImageID = mediaCursor.getString(thumbsImageIDCol);
 
-                        int i;
-                        for (i = 0; i < folders.size(); i++) {
-                            if (folders.get(i).getPath().equalsIgnoreCase(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1))) {
+                        Log.d("미디어", "" + thumbsAbsPath);
+
+                        if (thumbsImageID != null) {
+
+                            int i;
+                            for (i = 0; i < folders.size(); i++) {
+                                if (folders.get(i).getPath().equalsIgnoreCase(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1))) {
+                                    if (Validation.isNotEmpty(thumbsID) && Validation.isNotEmpty(thumbsAbsPath)) {
+                                        folders.get(i).setSize(folders.get(i).getSize() + 1);
+                                        folders.get(i).setThumbPath(thumbsAbsPath);
+                                    }
+                                    break;
+                                }
+                            }
+
+                            if (i == folders.size()) {
+                                Folder folder = new Folder(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1), thumbsAbsPath);
+                                folders.add(folder);
+
                                 if (Validation.isNotEmpty(thumbsID) && Validation.isNotEmpty(thumbsAbsPath)) {
                                     folders.get(i).setSize(folders.get(i).getSize() + 1);
-                                    folders.get(i).setThumbPath(thumbsAbsPath);
                                 }
-                                break;
                             }
                         }
+                    } while (mediaCursor.moveToNext());
+                }
 
-                        if (i == folders.size()) {
-                            Folder folder = new Folder(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1), thumbsAbsPath);
-                            folders.add(folder);
+                if (mediaCursor != null) {
+                    mediaCursor.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (mediaType == MediaType.IMAGE) {
+            Uri imageUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                    : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-                            if (Validation.isNotEmpty(thumbsID) && Validation.isNotEmpty(thumbsAbsPath)) {
-                                folders.get(i).setSize(folders.get(i).getSize() + 1);
+            try {
+                Cursor imageCursor = context.getContentResolver().query(
+                        imageUri,
+                        ImageUtils.proj,
+                        null,
+                        null,
+                        MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+
+                if (imageCursor != null && imageCursor.moveToFirst()) {
+                    String thumbsID;
+                    String thumbsImageID;
+                    String thumbsAbsPath;//,data,imgSize,thumbsFolderName;
+
+                    int thumbsIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
+                    int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                    int thumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+
+                    do {
+                        thumbsID = imageCursor.getString(thumbsIDCol);
+                        thumbsAbsPath = imageCursor.getString(thumbsDataCol);
+                        thumbsImageID = imageCursor.getString(thumbsImageIDCol);
+
+                        if (thumbsImageID != null) {
+
+                            int i;
+                            for (i = 0; i < folders.size(); i++) {
+                                if (folders.get(i).getPath().equalsIgnoreCase(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1))) {
+                                    if (Validation.isNotEmpty(thumbsID) && Validation.isNotEmpty(thumbsAbsPath)) {
+                                        folders.get(i).setSize(folders.get(i).getSize() + 1);
+                                        folders.get(i).setThumbPath(thumbsAbsPath);
+                                    }
+                                    break;
+                                }
+                            }
+
+                            if (i == folders.size()) {
+                                Folder folder = new Folder(thumbsAbsPath.substring(0, thumbsAbsPath.lastIndexOf("/") + 1), thumbsAbsPath);
+                                folders.add(folder);
+
+                                if (Validation.isNotEmpty(thumbsID) && Validation.isNotEmpty(thumbsAbsPath)) {
+                                    folders.get(i).setSize(folders.get(i).getSize() + 1);
+                                }
                             }
                         }
-                    }
-                } while (imageCursor.moveToNext());
-            }
+                    } while (imageCursor.moveToNext());
+                }
 
-            if (imageCursor != null) {
-                imageCursor.close();
+                if (imageCursor != null) {
+                    imageCursor.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         return folders;

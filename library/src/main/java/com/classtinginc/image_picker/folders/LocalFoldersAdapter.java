@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.classtinginc.image_picker.models.Folder;
+import com.classtinginc.image_picker.modules.MediaType;
 
 import java.util.ArrayList;
 

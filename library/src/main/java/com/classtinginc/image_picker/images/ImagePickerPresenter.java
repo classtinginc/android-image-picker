@@ -9,12 +9,11 @@ import android.util.Log;
 
 import com.classtinginc.image_picker.models.Folder;
 import com.classtinginc.image_picker.models.Image;
+import com.classtinginc.image_picker.modules.MediaType;
+import com.classtinginc.image_picker.utils.FileUtils;
 import com.classtinginc.image_picker.utils.ImageUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
-import java.io.IOException;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -34,12 +33,15 @@ class ImagePickerPresenter {
     private ArrayList<Image> selectedImages;
     private int maxSize;
     private boolean allowMultiple;
+    private MediaType mediaType;
 
     ImagePickerPresenter(ImagePickerView view) {
         this.view = view;
         subscriptions = new CompositeSubscription();
         selectedImages = new ArrayList<>();
     }
+
+    void setMediaType(MediaType mediaType) { this.mediaType = mediaType; }
 
     void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
@@ -76,41 +78,90 @@ class ImagePickerPresenter {
 
     ArrayList<Image> getImages(Context context, String dirPath) {
         ArrayList<Image> images = new ArrayList<>();
-        Uri contentsUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-                : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-        try {
-            Cursor imageCursor = context.getContentResolver().query(
-                    contentsUri,
-                    ImageUtils.proj,
-                    MediaStore.Images.Media.DATA + " like ? ",
-                    new String[] { "%" + dirPath + "%" },
-                    MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+        String dirMatcher = "[^\\.]*" + dirPath.replaceAll("/", "\\\\/") + "[^/]*\\.[^\\.]*$";
 
-            if (imageCursor != null && imageCursor.moveToFirst()) {
-                String thumbsImageID;
-                String thumbsAbsPath;
+        if (mediaType == MediaType.IMAGE_AND_VIDEO) {
+            Uri uri = MediaStore.Files.getContentUri("external");
+            String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=? OR " +
+                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?" + " AND " + MediaStore.Files.FileColumns.DATA + " LIKE ?";
+            String[] selectionArgs = new String[]{
+                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
+                    "%" + dirPath + "%"
+            };
+            String sortOrder = MediaStore.Files.FileColumns.DATE_TAKEN + " ASC";
 
-                int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                int thumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
 
-                do {
-                    thumbsAbsPath = imageCursor.getString(thumbsDataCol);
-                    thumbsImageID = imageCursor.getString(thumbsImageIDCol);
+            try {
+                Cursor mediaCursor = context.getContentResolver().query(
+                        uri, FileUtils.proj, selection, selectionArgs, sortOrder
+                );
 
-                    String dirMatcher = "[^\\.]*" + dirPath.replaceAll("/", "\\\\/") + "[^/]*\\.[^\\.]*$";
-                    if (thumbsAbsPath.matches(dirMatcher) && thumbsImageID != null) {
-                        images.add(0, new Image(thumbsAbsPath, thumbsImageID));
+                if (mediaCursor != null && mediaCursor.moveToFirst()) {
+                    String thumbsMediaID;
+                    String thumbsAbsPath;
+                    long thumbsMediaDuration;
+
+                    int thumbsDataCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                    int thumbsMediaIDCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME);
+                    int thumbsMediaDurationCol = mediaCursor.getColumnIndex(MediaStore.Files.FileColumns.DURATION);
+
+                    do {
+                        thumbsMediaID = mediaCursor.getString(thumbsMediaIDCol);
+                        thumbsAbsPath = mediaCursor.getString(thumbsDataCol);
+                        thumbsMediaDuration = mediaCursor.getLong(thumbsMediaDurationCol);
+
+                        if (thumbsAbsPath.matches(dirMatcher) && thumbsMediaID != null) {
+                            images.add(0, new Image(thumbsAbsPath, thumbsMediaID, thumbsMediaDuration));
+                        }
+                    } while (mediaCursor.moveToNext());
+                }
+
+                    if (mediaCursor != null) {
+                        mediaCursor.close();
                     }
-                } while (imageCursor.moveToNext());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (mediaType == MediaType.IMAGE) {
+                Uri imageUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                        : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+                try {
+                    Cursor imageCursor = context.getContentResolver().query(
+                            imageUri,
+                            ImageUtils.proj,
+                            MediaStore.Images.Media.DATA + " like ? ",
+                            new String[] { "%" + dirPath + "%" },
+                            MediaStore.Images.ImageColumns.DATE_TAKEN + " ASC");
+
+                    if (imageCursor != null && imageCursor.moveToFirst()) {
+                        String thumbsImageID;
+                        String thumbsAbsPath;
+
+                        int imageThumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                        int imageThumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+
+                        do {
+                            thumbsImageID = imageCursor.getString(imageThumbsImageIDCol);
+                            thumbsAbsPath = imageCursor.getString(imageThumbsDataCol);
+
+                            if (thumbsAbsPath.matches(dirMatcher) && thumbsImageID != null) {
+                                images.add(0, new Image(thumbsAbsPath, thumbsImageID));
+                            }
+                        } while (imageCursor.moveToNext());
+                    }
+
+                    if (imageCursor != null) {
+                        imageCursor.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            if (imageCursor != null) {
-                imageCursor.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return images;
     }
 

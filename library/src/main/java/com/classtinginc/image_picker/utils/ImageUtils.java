@@ -16,7 +16,7 @@ public class ImageUtils {
     public static final String[] proj = {
             MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA,
             MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.SIZE,
-            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
     };
 
     public static RequestOptions getDefaultOptions() {

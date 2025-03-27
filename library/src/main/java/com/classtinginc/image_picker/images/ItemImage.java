@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,10 +19,13 @@ import com.classtinginc.library.R;
 
 import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 
+import androidx.annotation.Nullable;
+
 public class ItemImage extends RelativeLayout {
 
     ImageView imageView;
     TextView check;
+    TextView videoDurationTextView;
 
     private ItemImageListener listener;
 
@@ -35,7 +39,6 @@ public class ItemImage extends RelativeLayout {
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public ItemImage(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
@@ -46,6 +49,7 @@ public class ItemImage extends RelativeLayout {
 
         imageView = findViewById(R.id.image_view);
         check = findViewById(R.id.check);
+        videoDurationTextView = findViewById(R.id.video_duration);
     }
 
     public void setListener(ItemImageListener listener) {
@@ -58,6 +62,15 @@ public class ItemImage extends RelativeLayout {
                 .apply(diskCacheStrategyOf(DiskCacheStrategy.RESOURCE))
                 .apply(ImageUtils.getDefaultOptions())
                 .into(imageView);
+
+        long duration = image.getDuration();
+
+        if (duration > 0L) {
+            videoDurationTextView.setVisibility(View.VISIBLE);
+            videoDurationTextView.setText(image.getFormattedDuration());
+        } else {
+            videoDurationTextView.setVisibility(View.GONE);
+        }
 
         check.setVisibility(visibleCheck ? VISIBLE : GONE);
         check.setActivated(image.getSelectedIndex() > -1);
