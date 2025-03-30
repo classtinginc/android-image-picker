@@ -1,5 +1,8 @@
 package com.classtinginc.image_picker.utils;
 
+import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
+import com.arthenica.ffmpegkit.ReturnCode;
 import com.classtinginc.image_picker.models.Media;
 
 import android.content.Context;
@@ -11,7 +14,6 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
@@ -28,6 +30,7 @@ public class MediaUtil {
     private static final String TAG = MediaUtil.class.getSimpleName();
 
     private final ArrayList<String> targetExtensions;
+    private static final String ALLOWED_VIDEO_CODEC = "h264";
     private final Context context;
 
     public MediaUtil(Context context) {
@@ -93,6 +96,24 @@ public class MediaUtil {
                 media.setMediaName(newMediaName);
                 media.setMediaPath(outputImagePath);
             }
+        }
+    }
+
+    public void convertVideoFormat(Media media) {
+        String path = media.getMediaPath();
+        String currentMediaName = media.getMediaName();
+        String newMediaName = currentMediaName + ".mp4";
+        String outputVideoPath = context.getCacheDir().toString() + "/" + newMediaName;
+        String ffmpegCommand = "-y -i " + path + " " + outputVideoPath;
+
+        FFmpegSession session = FFmpegKit.execute(ffmpegCommand);
+        if (ReturnCode.isSuccess(session.getReturnCode())) {
+            media.setMediaPath(outputVideoPath);
+        } else if (ReturnCode.isCancel(session.getReturnCode())) {
+            Log.d("FFmpeg", "AVI to MP4 conversion was cancelled");
+        } else {
+            Log.e("FFmpeg", "AVI to MP4 conversion failed: " + session.getFailStackTrace());
+
         }
     }
 

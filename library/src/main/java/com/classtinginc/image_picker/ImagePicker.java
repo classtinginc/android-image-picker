@@ -16,7 +16,6 @@ public class ImagePicker {
     private int maxSize = 1;
     private String mediaType = "image";
 
-
     public ImagePicker(Activity activity) {
         this.activity = activity;
     }
