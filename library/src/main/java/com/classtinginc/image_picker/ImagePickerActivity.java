@@ -133,6 +133,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                             mediaUtil.convertImageFormat(media);
                             mediums.add(media);
                         } else if (mimeType.startsWith("video/")) {
+                            mediaUtil.convertVideoFormat(media);
                             mediums.add(media);
                         } else {
                             Log.d(TAG, "Unknown media type.");
@@ -190,6 +191,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                         } else if (mimeType.startsWith("video/")) {
                             long duration = mediaUtil.getVideoDuration(uri);
                             media.setDuration(duration);
+                            mediaUtil.convertVideoFormat(media);
                             mediums.add(media);
                         } else {
                             Log.d(TAG, "Unknown media type.");
