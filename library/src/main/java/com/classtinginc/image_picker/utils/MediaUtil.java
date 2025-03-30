@@ -1,17 +1,23 @@
 package com.classtinginc.image_picker.utils;
 
+import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
+import com.arthenica.ffmpegkit.FFprobeKit;
+import com.arthenica.ffmpegkit.MediaInformation;
+import com.arthenica.ffmpegkit.MediaInformationSession;
+import com.arthenica.ffmpegkit.ReturnCode;
 import com.classtinginc.image_picker.models.Media;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
@@ -23,6 +29,7 @@ import java.util.Arrays;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 public class MediaUtil {
     private static final String TAG = MediaUtil.class.getSimpleName();
@@ -94,6 +101,47 @@ public class MediaUtil {
                 media.setMediaPath(outputImagePath);
             }
         }
+    }
+
+    /**
+     * 클래스톡에서 avi 포맷과 diaMetadataRetriever 에서 지원하지 않는 포맷을 업로드하는 경우 오류가 발생하여 해당 파일에
+     * 대해서 mp4 형식으로 변환합니다
+     *
+     * @param media
+     */
+    public void convertVideoFormat(Media media) {
+        String path = media.getMediaPath();
+
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(path);
+            Bitmap bmp = retriever.getFrameAtTime();
+
+            retriever.release();
+
+            MediaInformationSession mediaInformationSession = FFprobeKit.getMediaInformation(path);
+            MediaInformation mediaInformation = mediaInformationSession.getMediaInformation();
+
+            String format = mediaInformation.getFormat();
+
+            boolean needToConvert = bmp == null || Objects.equals(format, "avi");
+
+            if (needToConvert) {
+                String currentMediaName = media.getMediaName();
+                String newMediaName = currentMediaName + ".mp4";
+                String outputVideoPath = context.getCacheDir().toString() + "/" + newMediaName;
+                String ffmpegCommand = "-y -i " + path + " " + outputVideoPath;
+
+                FFmpegSession session = FFmpegKit.execute(ffmpegCommand);
+                if (ReturnCode.isSuccess(session.getReturnCode())) {
+                    media.setMediaPath(outputVideoPath);
+                    Log.d(TAG, "Convert video format success");
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Convert video format error", e);
+        }
+
     }
 
     public long getVideoDuration(Uri uri) {

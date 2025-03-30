@@ -43,6 +43,8 @@ dependencies {
 
     implementation 'io.reactivex:rxandroid:1.0.1'
     implementation 'com.google.code.gson:gson:2.8.1'
+
+    implementation 'com.arthenica:ffmpeg-kit-full:6.0.LTS'
 }
 
 publishing {
